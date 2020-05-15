@@ -1,0 +1,15 @@
+{
+  "name": "yj",
+  "version": "1.0.0",
+  "description": "一款电商类的营家项目",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "songGQ",
+  "license": "ISC",
+  "dependencies": {
+    "jweixin-module": "^1.6.0",
+    "tki-qrcode": "^0.1.6"
+  }
+}
