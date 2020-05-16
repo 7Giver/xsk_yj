@@ -167,7 +167,7 @@ export default {
     },
     search() {
       uni.navigateTo({
-        url: `/pages/router-page/search?keyword=${this.keyword}`
+        url: `/pages/router-page/search_index?keyword=${this.keyword}`
       });
     },
     navToLogin() {

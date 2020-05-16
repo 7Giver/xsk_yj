@@ -213,6 +213,12 @@
       }
     },
     {
+      "path": "pages/router-page/search_index",
+      "style": {
+        "navigationBarTitleText": "搜索"
+      }
+    },
+    {
       "path": "pages/mine_comp/order",
       "style": {
         "navigationBarTitleText": "我的订单"
