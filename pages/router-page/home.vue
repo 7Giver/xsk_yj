@@ -70,7 +70,7 @@
       }
     },
     mounted() {
-    	this.init_page_size();
+    	this.init_page_size()
     },
     onShareAppMessage() {
       var _this = this

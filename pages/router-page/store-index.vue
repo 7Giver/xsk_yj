@@ -20,28 +20,30 @@
         </button>
       </view>
     </view>
+    <image class="banner" v-if="storeInfo.showimage_text" :src="storeInfo.showimage_text" mode=""></image>
     <view class="coupon-section" v-if="couponList.length > 0">
       <scroll-view scroll-x class="scroll-coupon">
         <view class="coupon-item" @click="_getCoupon(item, index)" v-for="(item, index) in couponList" :class="[item.receive_status == 0 ? 'no-get' : 'alr-get']" :key="index">
-          <image class="coupon-bg" src="https://cdn.swh296.com/uploads/20200515/d24af0da33a68f2e170db3d70163a8dc.png" mode=""></image>
           <!-- <image class="coupon-get" v-if="item.receive_status == 1" src="https://cdn.swh296.com/img/store-info/get1.png" mode=""></image> -->
-          <view class="coupon-t">
+          <image class="coupon-bg" src="https://cdn.swh296.com/uploads/20200515/d24af0da33a68f2e170db3d70163a8dc.png" mode=""></image>
+          <view class="coupon-l">
             <view class="price-inner">
               <text>￥</text>
               <text class="price">{{ item.money }}</text>
             </view>
-            <view class="cut">
-              <view v-show="item.type != 3">满{{ item.order_min_amount }}-{{ item.money }}</view>
-              <button type="default" class="cu-btn">立即领券</button>
-            </view>
+            <view class="desc">{{ item.desc }}</view>
           </view>
-          <view class="coupon-b">{{ item.desc }}</view>
+          <view class="coupon-r">
+            <view v-show="item.type != 3">满{{ item.order_min_amount }}-{{ item.money }}</view>
+            <button type="default" class="cu-btn" v-if="item.receive_status==0">立即领券</button>
+            <button type="default" class="cu-btn" v-else>已领取</button>
+          </view>
         </view>
       </scroll-view>
     </view>
     <view class="service-section">
       <scroll-view scroll-x class="scroll-service">
-        <view class="service-item" v-for="(item, index) in serviceList" @click="_gType(item)" :key="index"><image :src="item.image" mode=""></image></view>
+        <view class="service-item" v-for="(item, index) in serviceList" @click="_gType(item)" :key="index"><image :src="item.thumb_image_text" mode=""></image></view>
       </scroll-view>
     </view>
     <view class="nav-section">
@@ -55,7 +57,7 @@
     <view class="pro-section" v-if="goodsList.length > 0">
       <view v-for="(item, index) in goodsList" :key="index" class="guess-item" @click="navToDetailPage(item)">
         <view class="image-wrapper"><image :src="item.image[0]" mode="aspectFill"></image></view>
-        <text class="title">{{ item.description }}</text>
+        <text class="title">{{ item.title }}</text>
         <p class="price">¥{{ item.price }}</p>
         <view class="desc">
           <view v-for="(s, i) in item.service_tags" :key="i">{{ s }}</view>
@@ -64,6 +66,8 @@
     </view>
     <empty
       v-if="isLoaded && goodsList.length == 0"
+      position="relative"
+      margin="20px auto"
       setSrc="https://cdn.swh296.com/img/common/empty_content.png">
       <view class="empty-text">暂无相关商品</view>
     </empty>
@@ -140,17 +144,28 @@ export default {
   computed: {
     ...mapState(['token', 'userInfo', 'storeId'])
   },
+  onShow() {
+    this.defaultKeyword = ''
+  },
+  created() {
+    console.log('created')
+  },
   mounted(options) {
-    this.setStoreId(15);
+    // this.setStoreId(15)
     this.xshop()
-    this.getStoreInfo();
-    this.storeCoupon();
-    this.getHomeList();
+    this.getStoreInfo()
+    this.storeCoupon()
+    this.getHomeList()
   },
   methods: {
     ...mapMutations({
       setStoreId: 'setStoreId'
     }),
+    _more(){
+      uni.navigateTo({
+        url:`/pages/router-page/list?cat_id=${this.TabCur}`
+      })
+    },
     xshop() {
       this.$http.post(`/addons/xshop/category/index`).then(response => {
         const data = response.data;
@@ -167,7 +182,7 @@ export default {
     },
     search() {
       uni.navigateTo({
-        url: `/pages/router-page/search_index?keyword=${this.keyword}`
+        url: `/pages/router-page/search_index?keyword=${this.keyword}&id=${this.storeId}`
       });
     },
     navToLogin() {
@@ -232,6 +247,8 @@ export default {
       } else {
         if (item.receive_status == 0) {
           this.addCoupon(item, index);
+        }else{
+          this.$api.msg('您已领取该优惠券~')
         }
       }
     },
@@ -318,40 +335,20 @@ export default {
           const data = response.data.data;
           if (response.code == 1) {
             uni.hideLoading();
-            if (this.page == 1) {
-              if (data.length < this.limit) {
-                if (data.length == 0) {
-                  this.loadmore = false;
-                } else {
-                  this.loadmore = true;
-                }
-                this.loadingType = 'noMore';
-              } else {
-                this.loadingType = 'more';
-                this.loadmore = true;
-                this.page++;
-              }
+            if(data && data.length>6){
+              this.goodsList = data.splice(0,6)
+            }else{
               this.goodsList = data;
-            } else {
-              this.page++;
-              if (data.length < this.limit) {
-                this.loadingType = 'noMore';
-              } else {
-                this.loadingType = 'more';
-              }
-              this.goodsList = this.goodsList.concat(data);
-              this.loadmore = true;
             }
             this.isLoaded = true;
-            this.isScrollOver = false;
           }
-        });
+        })
     }
   }
 };
 </script>
 <style lang="scss">
-.empty-content {
+/deep/.empty-content {
   // top: 50% !important;
   position: relative;
   margin: 60rpx auto;
@@ -363,6 +360,15 @@ export default {
 page,
 .app-container {
   background-color: #fff !important;
+}
+/deep/.empty-content {
+  // top: 50% !important;
+  position: relative;
+  margin: 60rpx auto;
+}
+.banner{
+  width: 100%;
+  height: 287rpx;
 }
 .store {
   width: 690rpx;
@@ -453,34 +459,35 @@ page,
       margin-left: 24rpx;
       display: inline-block;
       position: relative;
+      color: #fff;
       // padding: 10rpx 20rpx;
       &:last-child {
         margin-right: 24rpx;
       }
-      &.no-get {
-        color: #9f0f0f;
-        .price-inner {
-          color: #fffce6;
-        }
-        .cu-btn {
-          color: #f13a3c;
-        }
-        &.coupon-b {
-          color: rgba(249, 237, 221, 1);
-        }
-      }
-      &.alr-get {
-        color: #f3f3f3;
-        .price-inner {
-          color: #999999;
-        }
-        .cu-btn {
-          color: #cdcdcd;
-        }
-        &.coupon-b {
-          color: #eeeeee;
-        }
-      }
+      // &.no-get {
+      //   color: #9f0f0f;
+      //   .price-inner {
+      //     color: #fffce6;
+      //   }
+      //   .cu-btn {
+      //     color: #f13a3c;
+      //   }
+      //   &.coupon-b {
+      //     color: rgba(249, 237, 221, 1);
+      //   }
+      // }
+      // &.alr-get {
+      //   color: #f3f3f3;
+      //   .price-inner {
+      //     color: #999999;
+      //   }
+      //   .cu-btn {
+      //     color: #cdcdcd;
+      //   }
+      //   &.coupon-b {
+      //     color: #eeeeee;
+      //   }
+      // }
       .coupon-bg {
         position: absolute;
         left: 0;
@@ -496,39 +503,49 @@ page,
         top: 2%;
         z-index: 9;
       }
-      .coupon-t {
-        @include flexSB;
-        height: 75%;
+       // price-inner  
+      .coupon-l{
+        width: 60%;
+        float: left;
+        @include flexY;
+        @include flexA;
         position: relative;
         .price-inner {
           @include flexX;
-          font-size: 40rpx;
+          font-size: 30rpx;
           margin-right: 10rpx;
           .price {
-            font-size: 70rpx;
+            font-size: 60rpx;
           }
         }
-        .cut {
-          @include flexY;
-          @include flexJ;
-          font-size: 22rpx;
-          .cu-btn {
-            margin-top: 10rpx;
-            width: 111rpx;
-            height: 36rpx;
-            border-radius: 4rpx;
-            font-size: 22rpx;
-          }
+        .desc{
+          color: rgba(249, 237, 221, 1);
+          font-size: 21rpx;
         }
-      }
-      .coupon-b {
-        width: 100%;
+      } 
+      .coupon-r{
+        float: right;
+        height: 100%;
+        width: 40%;
+        @include flexY;
+        @include flexJ;
+        @include flexA;
+        font-size: 22rpx;
         position: relative;
-        text-align: center;
-        height: 34rpx;
-        line-height: 34rpx;
-        font-size: 20rpx;
-      }
+        view{
+          color: #D38F60;
+          font-size: 16rpx;
+          margin-bottom: 6rpx;
+        }
+        .cu-btn {
+          width:82rpx;
+          height:26rpx;
+          border-radius: 13rpx;
+          font-size: 16rpx;
+          color: #FFE4D2;
+          background:rgba(243,89,79,1);
+        }
+      } 
     }
   }
 }

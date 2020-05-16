@@ -74,13 +74,16 @@
         loadingType:'loading',
         height:'700',
         searchList:[],
-        limit:10
+        limit:10,
+        id:''
       }
     },
     onLoad(e) {
       let windowHeight = uni.getSystemInfoSync().windowHeight;
       this.height = windowHeight - 60 + 'px';
+      console.log(e)
       this.defaultKeyword = e.keyword
+      this.id = e.id
       this.search()
     },
     methods:{
@@ -98,7 +101,8 @@
           .post(`/api/search/index`,{
             page:this.page,
             limit:this.limit,
-            keywords:this.defaultKeyword  
+            keywords:this.defaultKeyword,
+            store_id:this.id
           })
           .then(response => {
             const data = response.data;

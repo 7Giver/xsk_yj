@@ -213,6 +213,12 @@
       }
     },
     {
+      "path": "pages/router-page/list",
+      "style": {
+        "navigationBarTitleText": "商品列表"
+      }
+    },
+    {
       "path": "pages/router-page/search_index",
       "style": {
         "navigationBarTitleText": "搜索"

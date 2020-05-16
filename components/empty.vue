@@ -1,5 +1,5 @@
 <template>
-  <view class="empty-content" :style="{top:isTop}">
+  <view class="empty-content"  :style="{top:isTop,position:position,margin:margin}">
     <image class="empty-content-image" :src="setSrc" mode="aspectFit"></image>
     <!-- <block v-if="isText" v-slot="text1">{{slotText}}</block> -->
     <slot></slot>
@@ -14,6 +14,14 @@ export default {
       default: 'empty'
     },
     setSrc: {
+      type: String,
+      default: ''
+    },
+    position:{
+      type: String,
+      default: ''
+    },
+    margin:{
       type: String,
       default: ''
     },
