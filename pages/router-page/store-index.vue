@@ -20,7 +20,7 @@
         </button>
       </view>
     </view>
-    <image class="banner" v-if="storeInfo.showimage_text" :src="storeInfo.showimage_text" mode=""></image>
+    <image class="banner" v-if="storeCover.length>0" :src="storeCover[0].image_text" mode=""></image>
     <view class="coupon-section" v-if="couponList.length > 0">
       <scroll-view scroll-x class="scroll-coupon">
         <view class="coupon-item" @click="_getCoupon(item, index)" v-for="(item, index) in couponList" :class="[item.receive_status == 0 ? 'no-get' : 'alr-get']" :key="index">
@@ -138,7 +138,8 @@ export default {
       isCanGetCoupon: false,
       couponId: '',
       couponList: [],
-      serviceList: []
+      serviceList: [],
+      storeCover:[]
     };
   },
   computed: {
@@ -156,6 +157,7 @@ export default {
     this.getStoreInfo()
     this.storeCoupon()
     this.getHomeList()
+    this.getStoreNav()
   },
   methods: {
     ...mapMutations({
@@ -165,6 +167,17 @@ export default {
       uni.navigateTo({
         url:`/pages/router-page/list?cat_id=${this.TabCur}`
       })
+    },
+    getStoreNav(){
+      this.$http.post(`/api/store/store/nav`,{
+        id:this.storeId
+      }).then(response => {
+        const data = response.data;
+        if (response.code === 1) {
+          console.log('data', data);
+          this.storeCover = data.banner
+        }
+      });
     },
     xshop() {
       this.$http.post(`/addons/xshop/category/index`).then(response => {
@@ -369,6 +382,7 @@ page,
 .banner{
   width: 100%;
   height: 287rpx;
+  margin-bottom: -8rpx;
 }
 .store {
   width: 690rpx;
