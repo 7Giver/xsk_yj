@@ -105,19 +105,19 @@ export default {
       loading: false,
       category: [
         {
+          text: '商品',
+          id: 2,
+          type: 'all'
+        },
+        {
           text: '精选',
           id: 0,
-          type: 'all'
+          type: 'rec'
         },
         {
           text: '热销',
           id: 1,
           type: 'hot'
-        },
-        {
-          text: '商品',
-          id: 2,
-          type: 'rec'
         },
         {
           text: '新品',
@@ -170,7 +170,7 @@ export default {
     }),
     _more(){
       uni.navigateTo({
-        url:`/pages/router-page/list?cat_id=${this.TabCur}`
+        url:`/pages/router-page/list?cat_id=${this.TabCur}&type=${this.type}`
       })
     },
     getStoreNav(){

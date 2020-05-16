@@ -11,7 +11,7 @@
           {{item.text}}
       </view>
     </view>
-    <scroll-view scroll-y="true" v-if="goodsList.length>0" enable-back-to-top="true" :style="{height:height}" class="scroll-view" @scrolltolower="getHomeRecommendProducts">
+    <scroll-view scroll-y="true" v-if="goodsList.length>0" enable-back-to-top="true" :style="{height:height}" class="scroll-view" @scrolltolower="getHomeList">
       <view class="pro-section" >
         <view v-for="(item, index) in goodsList" :key="index" class="guess-item" @click="navToDetailPage(item)">
           <view class="image-wrapper"><image :src="item.image" mode="aspectFill"></image></view>
@@ -61,22 +61,23 @@ export default {
       isLoaded:false,
       cat_id:'',
       TabCur:0,
+      type: 'all',
       category: [
-        {
-          text: '精选',
-          id: 0,
-          type: 'all'
-        },
-        {
-          text: '热销',
-          id: 1,
-          type: 'hot'
-        },
         {
           text: '商品',
           id: 2,
-          type: 'rec'
+          type: 'all'
         },
+         {
+           text: '精选',
+           id: 0,
+           type: 'rec'
+         },
+         {
+           text: '热销',
+           id: 1,
+           type: 'hot'
+         },
         {
           text: '新品',
           id: 3,
@@ -85,29 +86,30 @@ export default {
       ]
     };
   },
+  computed: {
+    ...mapState(['storeId'])
+  },
   onLoad(options) {
-    this.cat_id = options.cat_id
     this.TabCur = options.cat_id
+    this.type = options.type || 'all'
     let windowHeight = uni.getSystemInfoSync().windowHeight;
     this.height = windowHeight + 'px';
-    this.getHomeRecommendProducts()
+    this.getHomeList()
   },
   methods: {
     //精品推荐
-    getHomeRecommendProducts() {
+    getHomeList() {
       this.$http
-        .post(`/addons/xshop/product/getHomeRecommendProducts`, {
+        .post(`/api/store/product/getHomeList`, {
+          id: this.storeId,
           page: this.page,
-          sort: this.sort,
-          order: this.order,
-          type:'all'
-          // cat_id:this.cat_id,
+          type: this.type
         })
         .then(response => {
           const res = response.data;
           uni.hideLoading();
           this.loading = false;
-          if (response.code === 1) {
+          if (response.code == 1) {
             let data = res.data
             if(this.page == 1){
               if(data.length<this.limit){
@@ -134,46 +136,6 @@ export default {
               this.loadmore = true
             }
             this.isLoaded = true
-          }
-        });
-    },
-    getHomeList() {
-      this.$http
-        .post(`/api/store/product/getHomeList`, {
-          id: this.storeId || 15,
-          page: this.page,
-          type: this.type
-        })
-        .then(response => {
-          const data = response.data.data;
-          if (response.code == 1) {
-            uni.hideLoading();
-            if (this.page == 1) {
-              if (data.length < this.limit) {
-                if (data.length == 0) {
-                  this.loadmore = false;
-                } else {
-                  this.loadmore = true;
-                }
-                this.loadingType = 'noMore';
-              } else {
-                this.loadingType = 'more';
-                this.loadmore = true;
-                this.page++;
-              }
-              this.goodsList = data;
-            } else {
-              this.page++;
-              if (data.length < this.limit) {
-                this.loadingType = 'noMore';
-              } else {
-                this.loadingType = 'more';
-              }
-              this.goodsList = this.goodsList.concat(data);
-              this.loadmore = true;
-            }
-            this.isLoaded = true;
-            this.isScrollOver = false;
           }
         });
     },

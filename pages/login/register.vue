@@ -27,7 +27,7 @@
          <checkbox-group class="block" @change="checkboxChange">
            <checkbox class="round red" style="transform:scale(0.6)" :class="checkbox.checked ? 'checked' : ''" :checked="checkbox.checked ? true : false" value="isRead"></checkbox>
          </checkbox-group>
-         <text @click.stop="_toAgreement">阅读并同意用户协议</text>
+         <text @click.stop="_toAgreement">阅读并同意 <text style="color: #f5634b;">《营家用户协议》</text></text>
        </view>
     </view>
     <button class="s-bg-linear"  :disabled="disabled" @click="save">保存</button>
