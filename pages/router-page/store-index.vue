@@ -10,7 +10,8 @@
           v-model="keyword">
         </mSearch>
       </view>
-      <view class="store" v-if="storeInfo.name">
+      <!-- <view class="store" v-if="storeInfo.name"> -->
+      <view class="store" v-if="storeInfo.attention && storeInfo.attention.length == 0 && storeInfo.id != userInfo.store_id">
         <view class="store-l">
           <image :src="storeInfo.log_image_text" mode=""></image>
           <view class="">{{ storeInfo.name }}</view>
@@ -20,7 +21,11 @@
         </button>
       </view>
     </view>
-    <image class="banner" v-if="storeCover.length>0" :src="storeCover[0].image_text" mode=""></image>
+    <swiper class="banner-section round-dot" :indicator-dots="true" interval="2000"
+		 duration="500" autoplay="true">
+      <swiper-item v-for="(item, index) in storeCover" :key="index" class="banner-item"><image :src="item.image_text" /></swiper-item>
+    </swiper>
+    <!-- <image class="banner" v-if="storeCover.length>0" :src="storeCover[0].image_text" mode=""></image> -->
     <view class="coupon-section" v-if="couponList.length > 0">
       <scroll-view scroll-x class="scroll-coupon">
         <view class="coupon-item" @click="_getCoupon(item, index)" v-for="(item, index) in couponList" :class="[item.receive_status == 0 ? 'no-get' : 'alr-get']" :key="index">
@@ -379,11 +384,24 @@ page,
   position: relative;
   margin: 60rpx auto;
 }
-.banner{
+.banner-section{
   width: 100%;
   height: 287rpx;
   margin-bottom: -8rpx;
+  .banner-item{
+    width: 100%;
+    height: 287rpx;
+    image{
+      width: 100%;
+      height: 287rpx;
+    }
+  }
 }
+// .banner{
+//   width: 100%;
+//   height: 287rpx;
+//   margin-bottom: -8rpx;
+// }
 .store {
   width: 690rpx;
   margin: 20rpx auto 0;
