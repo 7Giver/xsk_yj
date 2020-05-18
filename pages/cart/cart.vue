@@ -115,8 +115,12 @@ export default {
     ...mapState(['hasLogin', 'token'])
   },
   onShow() {
-    // let token = this.token || uni.getStorageSync('state_token')
-    this.getCartList()
+      this.getCartList()
+  },
+  onLoad(){
+    /* #ifdef H5 */
+    if(this.$common.getQueryString('token')) this.getCartList()
+    /* #endif */
   },
   watch: {
     // cartList(e) {
@@ -259,11 +263,10 @@ export default {
     getCartList() {
       this.$http
         .post(`/addons/xshop/cart/list`, {
-          token: this.token || uni.getStorageSync('state_token')
+          // token: this.token || uni.getStorageSync('state_token')
         })
         .then(response => {
-          const data = response.data;
-          console.log('response.data',data)
+          const data = response.data
           if (response.code == 1) {
             this.loaded = true;
             if(data && data.length>0){

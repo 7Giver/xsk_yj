@@ -115,7 +115,6 @@ function modelShow(
     showCancel: showCancel,
     cancelText: cancelText,
     confirmText: confirmText,
-    cancelText: cancelText,
     success: function(res) {
       if (res.confirm) {
         // 用户点击确定操作

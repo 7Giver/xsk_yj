@@ -20,17 +20,20 @@ const http = uni_request({
     // #endif
 })
 http.interceptors.request.use(async (config, ...args) => {
-  let token = store.state.token || uni.getStorageSync('state_token')
-  // console.log('token',token)
-  // config.header.Authorization = 'token' + token // 修改请求头
-  // config.header= { // 修改请求头
-  //   'token':token
-  // } 
-  // config.header.token = token // 修改请求头
-  return config
+  // #ifdef H5
+    if(location.href.indexOf('token')>=0){
+      let interToken = Common.getQueryString('token')
+      uni.setStorageSync('state_token', interToken)
+    }
+    // #endif
+    let token = store.state.token || uni.getStorageSync('state_token')
+    // config.header.Authorization = 'token' + token // 修改请求头
+    config.header= { // 修改请求头
+      'token':token
+    } 
+    return config
 })  
 let isLogin = false 
-console.log('isLogin',isLogin)
 http.interceptors.response.use(async(response, ...args) => { 
   // console.log('--response--',response)
     const { data: res } = response// args[0] method args[1] url args[3] data

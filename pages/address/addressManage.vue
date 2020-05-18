@@ -11,9 +11,11 @@
 		</view>
 		<view class="row b-b">
 			<text class="tit">所在地区</text>
+        <!-- #ifdef MP-WEIXIN -->
         <picker class="address_picker" @change="_bindAddressChange" name="region"  mode ="region" :value="array" >
             {{addressData.address}}
         </picker>
+        <!-- #endif -->
 			<!-- <text class="yticon icon-shouhuodizhi"></text> -->
 		</view>
 		<view class="row b-b"> 
@@ -23,17 +25,21 @@
 		
 		<view class="row default-row">
 			<text class="tit">设为默认</text>
-			<switch :checked="addressData.is_default" color="#fa436a" @change="switchChange" />
+			<!-- <switch :checked="addressData.is_default" color="#fa436a" @change="switchChange" /> -->
+			<switch checked="true" color="#fa436a" @change="switchChange" />
 		</view>
 		<button class="add-btn" @click="confirm">提交</button>
+    <!-- <button class="btns" type="primary" @tap="openAddres">默认打开地址</button> -->
+    <simple-address ref="simpleAddress" :pickerValueDefault="cityPickerValueDefault" @onConfirm="onConfirm" themeColor="#007AFF"></simple-address>
 	</view>
 </template>
 
 <script>
   import {mapState} from 'vuex'
   import uniNavBar from "@/components/uni-nav-bar/uni-nav-bar.vue"
+  import simpleAddress from '@/components/simple-address/simple-address.vue'
   export default {
-    components: {uniNavBar},
+    components: {uniNavBar,simpleAddress},
 		data() {
 			return {
 				addressData: {
@@ -46,29 +52,57 @@
           id:''
 				},
         array: [],
-        manageType:''
+        manageType:'',
+        cityPickerValueDefault: [0, 0, 1],
+        pickerText: '',
+        defchecked:1
+        // checked:1
 			}
 		},
     computed:{
-      ...mapState(['token'])
+      ...mapState(['token']),
+      // defchecked(){
+      //   return 1
+      // }
     },
 		onLoad(option){
 			let title = '新增收货地址';
 			if(option.type==='edit'){
 				title = '编辑收货地址'
-				
 				this.addressData = JSON.parse(option.data)
+        // this.checked = this.addressData.is_default
+        // console.log(typeof this.checked)
 			}
 			this.manageType = option.type;
-      console.log('this.manageType',this.manageType)
 			uni.setNavigationBarTitle({
 				title
 			})
 		},
 		methods: {
+      openAddres() {
+      	this.cityPickerValueDefault = [0,0,1]
+      	this.$refs.simpleAddress.open();
+      },
+      openAddres2() {
+      	// 根据 label 获取
+      	var index = this.$refs.simpleAddress.queryIndex(['湖北省', '随州市', '曾都区'], 'label');
+      	console.log(index);
+      	this.cityPickerValueDefault = index.index;
+      	this.$refs.simpleAddress.open();
+      },
+      openAddres3() {
+      	// 根据value 获取
+      	var index = this.$refs.simpleAddress.queryIndex([13, 1302, 130203], 'value');
+      	console.log(index);
+      	this.cityPickerValueDefault = index.index;
+      	this.$refs.simpleAddress.open();
+      },
+      onConfirm(e) {
+      	this.pickerText = JSON.stringify(e);
+      },
       _bindAddressChange(e){
-          console.log('picker发送选择改变，携带值为', e.target.value)
-          this.addressData.address =e.target.value.join('')
+        console.log('picker发送选择改变，携带值为', e.target.value)
+        this.addressData.address =e.target.value.join('')
       },
       back(){
         uni.navigateBack()

@@ -15,7 +15,7 @@
         </view>
         <view class="detail-r">
           <view class="user-btn" v-if="couponDetail.home_display == 0" @click.stop="isuserModal = true">指定用户>></view>
-          <button class="validate-btn" v-if="couponDetail.type == 4" @click.stop="validateBtn">秘钥</button>
+          <!-- <button class="validate-btn" v-if="couponDetail.type == 4" @click.stop="validateBtn">秘钥</button> -->
         </view>
       </view>
     </view>
@@ -103,14 +103,27 @@ export default {
       isuserModal: false,
       userCode: '',
       isOk: false,
-      couponImage: ''
+      couponImage: '',
+      optionsCode:''
     };
   },
   computed: {
     ...mapState(['token'])
   },
   onLoad(options) {
-    this.option_id = options.id;
+    if(options.id){
+      this.option_id = options.id;
+    }
+    if(options.q){
+      console.log('--options--',options)
+      console.log('--options.q--',options.q)
+      let optionsQrcode = decodeURIComponent(options.q).split('/qrcode/')[1]
+      this.option_id = optionsQrcode.split('/code/')[0]
+      this.validateCode = optionsQrcode.split('/code/')[1]
+      console.log('this.option_id:',this.option_id)
+      console.log('this.optionsCode:',this.optionsCode)
+      this.useCode()
+    }
     this.details();
     this.detailsList();
   },
@@ -136,11 +149,11 @@ export default {
         this.$api.msg('请输入正确的账号~');
         return;
       }
-      this.giveAs();
+      this.giveAs()
     },
     _submitcodeInfo() {
       if (this.isOk) {
-        this.useCode();
+        this.useCode()
       } else {
         this.$api.msg('请输入正确的秘钥');
       }
@@ -148,21 +161,28 @@ export default {
     useCode() {
       this.$http
         .post(`/api/merchants/coupon/useCode`, {
-          token: this.token,
+          token: this.token || uni.getStorageSync('state_token'),
           code: this.validateCode
         })
         .then(response => {
           const data = response.data;
           this.$api.msg(response.msg);
+          this.$common.modelShow(
+            '温馨提示',
+            `${response.msg}`,
+            (e)=>{
+              console.log('e',e)
+            },false
+          )
           if (response.code === 1) {
-            this.iscodeModal = false;
+            // this.iscodeModal = false;
           }
         });
     },
     valiCode() {
       this.$http
         .post(`/api/merchants/coupon/valiCode`, {
-          token: this.token,
+          token: this.token || uni.getStorageSync('state_token'),
           code: this.validateCode
         })
         .then(response => {
@@ -180,7 +200,7 @@ export default {
       let status = this.couponDetail.status == 1 ? 0 : 1;
       this.$http
         .post(`/api/merchants/coupon/update`, {
-          token: this.token,
+          token: this.token || uni.getStorageSync('state_token'),
           id: this.option_id,
           status: status
         })
@@ -200,7 +220,7 @@ export default {
     details() {
       this.$http
         .post(`/api/merchants/coupon/details`, {
-          token: this.token,
+          token: this.token || uni.getStorageSync('state_token'),
           id: this.option_id
         })
         .then(response => {
@@ -222,7 +242,7 @@ export default {
     giveAs() {
       this.$http
         .post(`/addons/xshopcoupon/coupon/giveAs`, {
-          token: this.token,
+          token: this.token || uni.getStorageSync('state_token'),
           id: this.couponDetail.id,
           mobile: this.userCode
         })
@@ -236,7 +256,7 @@ export default {
     detailsList() {
       this.$http
         .post(`/api/merchants/coupon/detailsList`, {
-          token: this.token,
+          token: this.token || uni.getStorageSync('state_token'),
           id: this.option_id,
           use_status: this.tabId,
           page: this.page

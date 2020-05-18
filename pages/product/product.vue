@@ -229,15 +229,19 @@
 		async onLoad(options){
 			let id = options.id;
       this.productId = id  
-      let state_userInfo =uni.getStorageSync('state_userInfo') && uni.getStorageSync('state_userInfo').nickname 
-      if(!this.userInfo.nickname && state_userInfo){
-        this.setUserInfo(uni.getStorageSync('state_userInfo'))
+      if(!this.userInfo.nickname){
+         this.setUserInfo(uni.getStorageSync('state_userInfo'))
       }
       this.getProduct()
       this.getReviews()
       this.getProductCoupon()
-      // setTimeout
-      console.log(this.currentSku)
+      // #ifdef H5
+      if (this.$jwx && this.$jwx.isWechat()) {
+        this.$jwx.initJssdk(function(res){
+          console.log('this.$jwx',res)
+        })
+      }
+      // #endif
 		},
     onShareAppMessage() {
       var _this = this
@@ -373,7 +377,6 @@
       	return result.join(',')
       },
       convertSkusKey(skus) {
-        console.log('skus',skus)
       	skus.forEach((item, index) => {
       		this.skusValueAsKey[item.value] = item
       	})

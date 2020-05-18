@@ -284,7 +284,7 @@ export default {
     getUserInfo() {
       this.$http
         .post(`/api/user/getUserInfo`, {
-          token: this.token || uni.getStorageSync('state_token')
+          // token: this.token || uni.getStorageSync('state_token')
         })
         .then(response => {
           const data = response.data;

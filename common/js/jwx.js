@@ -15,19 +15,20 @@ export default {
     initJssdk:function(callback){  
         var uri = encodeURIComponent(window.location.href);//获取当前url然后传递给后台获取授权和签名信息  
         uni.request({  
-            url:'http://www.baidu.com',//你的接口地址  
+            url:'https://apis.53pzck.top/addons/xshop/h5/share',//你的接口地址  
             data:{  
                 url:uri  
             },  
             success:(res)=>{  
+              console.log('initJssdk:',res.data)
                 //返回需要的参数appId,timestamp,noncestr,signature等  
                 //注入config权限配置  
                 jweixin.config({  
-                    debug: false,  
-                    appId: res.data.signPackage.appId,  
-                    timestamp: res.data.signPackage.timestamp,  
-                    nonceStr: res.data.signPackage.nonceStr,  
-                    signature: res.data.signPackage.signature,  
+                    debug: true,  
+                    appId: res.data.code.appId,  
+                    timestamp: res.data.code.timestamp,  
+                    nonceStr: res.data.code.nonceStr,  
+                    signature: res.data.code.signature,  
                     jsApiList: [//这里是需要用到的接口名称  
                         'checkJsApi',//判断当前客户端版本是否支持指定JS接口  
                         'onMenuShareAppMessage',//分享接口  
