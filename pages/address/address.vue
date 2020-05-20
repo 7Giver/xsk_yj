@@ -41,11 +41,9 @@
       ...mapState(['token'])
     },
     onShow() {
-      console.log('onshow')
       this.getAddress()
     },
 		onLoad(option){
-			console.log(option.source);
 			this.source = option.source;
       // this.getAddress()
 		},
@@ -67,8 +65,6 @@
 			refreshList(data, type){
 				//添加或修改后事件，这里直接在最前面添加了一条数据，实际应用中直接刷新地址列表即可
 				this.addressList.unshift(data);
-				
-				console.log(data, type);
 			},
       getAddress(){
         this.$http
@@ -78,7 +74,6 @@
           .then(response => {
             const data = response.data;
             if (response.code === 1) {
-              console.log('data',data)
               this.loaded = true
               this.addressList = data
             }

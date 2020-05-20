@@ -11,10 +11,13 @@
 		</view>
 		<view class="row b-b">
 			<text class="tit">所在地区</text>
+      <view class="address-section" @tap="openAddres">
+        {{addressData.address}}
+      </view>
         <!-- #ifdef MP-WEIXIN -->
-        <picker class="address_picker" @change="_bindAddressChange" name="region"  mode ="region" :value="array" >
+      <!--  <picker class="address_picker" @change="_bindAddressChange" name="region"  mode ="region" :value="array" >
             {{addressData.address}}
-        </picker>
+        </picker> -->
         <!-- #endif -->
 			<!-- <text class="yticon icon-shouhuodizhi"></text> -->
 		</view>
@@ -26,10 +29,12 @@
 		<view class="row default-row">
 			<text class="tit">设为默认</text>
 			<!-- <switch :checked="addressData.is_default" color="#fa436a" @change="switchChange" /> -->
-			<switch checked="true" color="#fa436a" @change="switchChange" />
+			<!-- <switch checked="true" color="#fa436a" @change="switchChange" /> -->
+      <switch class="red" style="transform:scale(0.8)" @change="switchChange" :class="switch_def ? 'checked' : ''" :checked="switch_def ? true : false"></switch>
 		</view>
 		<button class="add-btn" @click="confirm">提交</button>
     <!-- <button class="btns" type="primary" @tap="openAddres">默认打开地址</button> -->
+    <!-- <button class="btns" type="default" @tap="openAddres2">自定义：根据省市区名称打开地址</button> -->
     <simple-address ref="simpleAddress" :pickerValueDefault="cityPickerValueDefault" @onConfirm="onConfirm" themeColor="#007AFF"></simple-address>
 	</view>
 </template>
@@ -46,16 +51,17 @@
 					contactor_name: '',
 					phone: '',
 					addressName: '在地图选择',
-					address: '江苏省无锡市梁溪区',
+					address: '北京市东城区',
 					street: '',
 					is_default: 0,
-          id:''
+          id:'',
 				},
         array: [],
         manageType:'',
         cityPickerValueDefault: [0, 0, 1],
         pickerText: '',
-        defchecked:1
+        defchecked:1,
+        switch_def:false
         // checked:1
 			}
 		},
@@ -70,6 +76,7 @@
 			if(option.type==='edit'){
 				title = '编辑收货地址'
 				this.addressData = JSON.parse(option.data)
+        this.switch_def = this.addressData.is_default
         // this.checked = this.addressData.is_default
         // console.log(typeof this.checked)
 			}
@@ -80,7 +87,7 @@
 		},
 		methods: {
       openAddres() {
-      	this.cityPickerValueDefault = [0,0,1]
+      	this.cityPickerValueDefault = [0,0,0]
       	this.$refs.simpleAddress.open();
       },
       openAddres2() {
@@ -90,15 +97,9 @@
       	this.cityPickerValueDefault = index.index;
       	this.$refs.simpleAddress.open();
       },
-      openAddres3() {
-      	// 根据value 获取
-      	var index = this.$refs.simpleAddress.queryIndex([13, 1302, 130203], 'value');
-      	console.log(index);
-      	this.cityPickerValueDefault = index.index;
-      	this.$refs.simpleAddress.open();
-      },
       onConfirm(e) {
-      	this.pickerText = JSON.stringify(e);
+        let labelArr =  e.labelArr
+        this.addressData.address = labelArr.join('')
       },
       _bindAddressChange(e){
         console.log('picker发送选择改变，携带值为', e.target.value)
@@ -113,8 +114,9 @@
       },
 			switchChange(e){
         console.log(e.detail)
-				this.addressData.is_default = e.detail.value ? 1 : 0;
-        console.log(this.addressData.is_default)
+        this.switch_def = e.detail.value
+				// this.addressData.is_default = e.detail.value ? 1 : 0;
+        // console.log(this.addressData.is_default)
 			},
 			
 			//地图选择地址
@@ -182,7 +184,8 @@
             address:this.addressData.address,
             phone:this.addressData.phone,
             // is_default:this.addressData.default ? 1: 0,
-            is_default:this.addressData.is_default,
+            // is_default:this.addressData.is_default,
+            is_default:this.switch_def ? 1 : 0,
             street: this.addressData.street,
             address_id:this.addressData.id
           })
@@ -224,7 +227,10 @@
 			font-size: 30rpx;
 			color: $font-color-dark;
 		}
-		.input,.address_picker{
+    .address-section{
+      
+    }
+		.input,.address_picker,.address-section{
 			flex: 1;
       height: 100%;
       line-height: 110rpx;

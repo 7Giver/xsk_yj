@@ -24,11 +24,6 @@
             <text class="stock" v-if="item.stock">库存: {{item.stock}}</text>
           </view>
         </view>
-        <!--  -->
-        <view class="edit" @click.stop="_editGoods(item)" v-if="item.checked">
-          编辑
-        </view>
-        <!--  -->
       </view>
     </view>
     <view class="splitCls" style="height: 70px"></view>
@@ -134,16 +129,10 @@ export default {
     },
     ...mapState(['token','userInfo'])
   },
-  onShow() {
+  onLoad() {
     this.products()
   },
   methods: {
-    _editGoods(item){
-      console.log(item)
-      uni.navigateTo({
-        url:`/pages/store_manage_comp/edit_goods?id=${item.id}`
-      })
-    },
     chooseRec(e) {
     	let index = e.index;
       let objData = {}
@@ -492,14 +481,6 @@ page,
             color: #999999;
           }
         }
-      }
-      .edit{
-        padding: 0 30rpx;
-        height: 60rpx;
-        line-height: 60rpx;
-        border-radius: 10rpx;
-        color: #f64443;
-        border: 1px solid #f64443;
       }
     }
   }

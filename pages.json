@@ -111,6 +111,15 @@
       }
     },
     {
+      "path": "pages/store_manage_comp/edit_goods",
+      "style": {
+        "navigationBarTitleText": "编辑商品", //编辑商品
+        "app-plus": {
+          "titleNView": false
+        }
+      }
+    },
+    {
       "path": "pages/store_manage_comp/new_score",
       "style": {
         "navigationBarTitleText": "新增商品", //新增商品

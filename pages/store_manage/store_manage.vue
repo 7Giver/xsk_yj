@@ -8,7 +8,7 @@
 </template>
 
 <script>
-import {mapState} from 'vuex';
+import {mapState,mapMutations} from 'vuex';
 export default {
 	data() {
 		return {
@@ -27,6 +27,11 @@ export default {
            image:'http://cdn.swh296.com/img/store-manage/store_card.png',
            text:'卡券管理',
            url:'/pages/store_manage_comp/card_manage'
+         },
+         {
+           image:'/static/store_edit.png',
+           text:'编辑商品',
+           url:'/pages/store_manage_comp/self_goods_manage'
          }
          // {
          //   image:'http://cdn.swh296.com/img/store-manage/store_score.png',
@@ -43,7 +48,13 @@ export default {
   computed: {
     ...mapState(['userInfo'])
   },
+  mounted() {
+    if(!this.userInfo.nickname){
+       this.setUserInfo(uni.getStorageSync('state_userInfo'))
+    }
+  },
 	methods: {
+    ...mapMutations(['setUserInfo']),
     navTo(url){
       if(!this.userInfo.nickname){
       	url = '/pages/login/login'
