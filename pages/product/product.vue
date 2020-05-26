@@ -29,7 +29,7 @@
 			<view class="bot-row">
 				<text>销量: {{product.sold_count || 0}}</text>
 				<text>分享: {{product.share_num || 0}}</text>
-				<text>收藏: {{product.favorite || 0}}</text>
+				<text>收藏: {{product.count_favorite || 0}}</text>
 				<!-- <text>库存: {{currentSku && currentSku.stock || 0}}</text> -->
 			</view>
 		</view>
@@ -227,6 +227,7 @@
       }
     },
 		async onLoad(options){
+      var _this = this 
 			let id = options.id;
       this.productId = id  
       if(!this.userInfo.nickname){
@@ -235,13 +236,6 @@
       this.getProduct()
       this.getReviews()
       this.getProductCoupon()
-      // #ifdef H5
-      if (this.$jwx && this.$jwx.isWechat()) {
-        this.$jwx.initJssdk(function(res){
-          console.log('this.$jwx',res)
-        })
-      }
-      // #endif
 		},
     onShareAppMessage() {
       var _this = this
@@ -259,9 +253,15 @@
       ...mapMutations(['setStoreId','setUserInfo','setToken']),
       navToLogin(){
         if(!this.userInfo.mobile){
-          uni.navigateTo({
-            url:'/pages/login/login'
-          })
+         // #ifdef MP-WEIXIN
+         let url = '/pages/login/login';
+         uni.navigateTo({
+           url
+         }) 
+         // #endif
+         // #ifdef H5
+         this.$common.authH5()
+         // #endif
           return false
         }else{
           return true
@@ -457,6 +457,7 @@
           })
       },
       getProduct(){
+        var _this = this
         this.$http
           .post(`/addons/xshop/product/index`,{
             id:this.productId,
@@ -469,7 +470,23 @@
              uni.setNavigationBarTitle({
              	title:this.product.title
              })
-             this.collectText =this.product.store &&  this.product.store.attention_status == 0 ? '收藏店铺' : '已收藏'
+             console.log('this.product:',this.product)
+             // #ifdef H5
+             if (this.$jwx && this.$jwx.isWechat()) {
+               this.$jwx.initJssdk(function(res){
+                 let shareData = {
+                  title: _this.product.title, // 分享标题
+                  desc: _this.product.description, // 分享描述
+                  shareUrl: window.location.href, // 分享链接
+                  imgUrl:_this.product.image[0], // 分享图标
+                 }
+                 _this.$jwx.onMenuShareAppMessage(shareData,function(response){
+                   console.log('response',response)
+                 })
+               })
+             }
+             // #endif
+             this.collectText = this.product.store && this.product.store.attention_status == 0 ? '收藏店铺' : '已收藏'
              this.favorite = this.product.favorite
              this.convertSkusKey(this.product.skus)
              this.specInit()

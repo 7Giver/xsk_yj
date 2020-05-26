@@ -57,11 +57,16 @@ export default {
     ...mapMutations(['setUserInfo']),
     navTo(url){
       if(!this.userInfo.nickname){
-      	url = '/pages/login/login'
-      }
-      uni.navigateTo({  
-      	url
-      })  
+       // #ifdef MP-WEIXIN
+       let url = '/pages/login/login';
+       uni.navigateTo({
+         url
+       }) 
+       // #endif
+       // #ifdef H5
+       this.$common.authH5()
+       // #endif  
+       }
     },
 		_gManageList(item){
         this.navTo(item.url)

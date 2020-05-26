@@ -148,9 +148,15 @@ export default {
   methods: {
     navToLogin(){
       if(!this.userInfo.mobile){
+      // #ifdef MP-WEIXIN
+        let url = '/pages/login/login';
         uni.navigateTo({
-          url:'/pages/login/login'
-        })
+          url
+        }) 
+        // #endif
+        // #ifdef H5
+        this.$common.authH5()
+        // #endif
         return false
       }else{
         return true

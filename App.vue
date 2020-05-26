@@ -18,6 +18,9 @@ export default {
         }
       });
     }
+    // #ifdef H5
+    uni.setStorageSync('state_ios_href', location.href)
+    // #endif
   },
   onShow: function() {
     var _this = this;

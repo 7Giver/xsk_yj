@@ -112,6 +112,8 @@ export default {
       }
       console.log(this.reg)
       this.disabled = true
+      console.log(this.token,this.reg)
+      // return
       this.profile()
     },
     _getCode() {
@@ -123,7 +125,6 @@ export default {
     profile(){
       this.$http
         .post(`/api/user/profile`,{
-          token:this.token,
           mobile:this.reg.tel,
           code:this.reg.code,
           nickname:this.reg.name

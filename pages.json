@@ -13,6 +13,36 @@
       }
     }, 
     {
+      "path": "pages/mine_comp/attention",
+      "style": {
+        "navigationBarTitleText": "我的关注" //我的关注
+      }
+    }, 
+    {
+      "path": "pages/mine_comp/footprint",
+      "style": {
+        "navigationBarTitleText": "足迹" //足迹
+      }
+    }, 
+    {
+      "path": "pages/mine_comp/collect",
+      "style": {
+        "navigationBarTitleText": "收藏夹" //收藏夹
+      }
+    }, 
+    {
+      "path": "pages/mine_comp/activity",
+      "style": {
+        "navigationBarTitleText": "activity" //我的活动
+      }
+    }, 
+    {
+      "path": "pages/mine_comp/advice",
+      "style": {
+        "navigationBarTitleText": "advice" //投诉建议
+      }
+    }, 
+    {
       "path": "pages/index/list",
       "style": {
         "navigationBarTitleText": "精品推荐" //精品推荐

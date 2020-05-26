@@ -55,44 +55,46 @@
 		},
     onLoad(options) {
       this.page = 'store-index'
-      console.log(this.page,options)
+      console.log('onload',this.page,options)
       if(options.store_id){
         this.setStoreId(options.store_id)
       }else{
-        console.log('--!options.store_id--',options)
+        // console.log('--!options.store_id--',options)
       }
       if(options.q){
-        console.log('--options--',options)
-        console.log('--options.q--',options.q)
+        // console.log('--options--',options)
+        // console.log('--options.q--',options.q)
         let code = decodeURIComponent(options.q).split('/store_id/')[1]
-        console.log('---code',code)
+        // console.log('---code',code)
         this.setStoreId(code)
       }
     },
     mounted() {
+      console.log('mounted:')
     	this.init_page_size()
+      this._getStoreInfo()
     },
     onShareAppMessage() {
       var _this = this
       console.log('分享')
       // let store_id =options && options.store_id || this.storeId
       // console.log(store_id)
-      this.$http
-        .post(`/api/store/store/info`,{
-          id:_this.storeId,
-          token:_this.token || uni.getStorageSync('state_token') 
-        })
-        .then(response => {
-          const data = response.data;
-          if (response.code === 1) {
-            _this.storeInfo = data.store_info
+      // this.$http
+      //   .post(`/api/store/store/info`,{
+      //     id:_this.storeId || uni.getStorageSync('state_storeId'),
+      //     token:_this.token || uni.getStorageSync('state_token') 
+      //   })
+      //   .then(response => {
+      //     const data = response.data;
+      //     if (response.code === 1) {
+      //       _this.storeInfo = data.store_info
             return {
             	title: _this.storeInfo.name,
             	path: `/pages/router-page/home?page="store-index"&store_id=${this.storeId}`,
             	imageUrl:_this.image ? _this.image : 'https://img-cdn-qiniu.dcloud.net.cn/uniapp/app/share-logo@3.png'
             }
-          }
-        });
+          // }
+        // });
     },
 		methods: {
       ...mapMutations(['setStoreId']),
@@ -108,6 +110,39 @@
 					url
 				})  
 			}, 
+      _getStoreInfo(){
+        var _this = this
+        this.$http
+          .post(`/api/store/store/info`,{
+            id:_this.storeId || uni.getStorageSync('state_storeId'),
+            token:_this.token || uni.getStorageSync('state_token') 
+          })
+          .then(response => {
+            const data = response.data;
+            if (response.code === 1) {
+              _this.storeInfo = data.store_info
+              _this._getShare()
+            }
+          });
+      },
+      _getShare(){
+        var _this = this
+        // #ifdef H5
+        if (this.$jwx && this.$jwx.isWechat()) {
+          this.$jwx.initJssdk(function(res){
+            let shareData = {
+             title: _this.storeInfo.name +'的店铺', // 分享标题
+             desc: '', // 分享描述
+             shareUrl: window.location.href, // 分享链接
+             imgUrl:_this.storeInfo.log_image_text || 'https://img-cdn-qiniu.dcloud.net.cn/uniapp/app/share-logo@3.png', // 分享图标
+            }
+            _this.$jwx.onMenuShareAppMessage(shareData,function(response){
+              console.log('response',response)
+            })
+          })
+        }
+        // #endif
+      },
 			changeTab(item) {
 				uni.setNavigationBarTitle({
 					title:item.title

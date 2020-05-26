@@ -210,7 +210,6 @@ export default {
   watch: {
     addressData(newValue, oldValue) {
       this.addressData.id = newValue.id
-      console.log(this.addressData.id)
     }
   },
   methods: {
@@ -222,14 +221,12 @@ export default {
      // },
      _showMask() {
           this.isShow = !this.isShow;
-          console.log(this.isShow);
       },
       maskClose(){
         this.isShow = false
       },
       handelClose(data) {
           this.isShow = false;
-          console.log(data); 
           this.sendTime = data._dateRange 
           this.sendTime1 = data._date 
           //data={
@@ -270,7 +267,6 @@ export default {
         .post(`/addons/xshopcoupon/coupon/usableCoupon`,this.params )
         .then(response => {
           const data = response.data
-          console.log('data', data)
           if (response.code === 1) {
             this.usableCouponList =data
           }
@@ -286,7 +282,6 @@ export default {
         })
         .then(response => {
           const data = response.data;
-          console.log('data', data);
           if (response.code == 1) {
             if(data.discount_price){
               this.couponText ='-' + data.discount_price
@@ -311,7 +306,6 @@ export default {
         .post(`/addons/xshopcoupon/coupon/getProductCoupon`,params)
         .then(response => {
           const data = response.data;
-          console.log('data', data);
           if (response.code == 1) {
             this.couponList = data;
           }
@@ -324,7 +318,6 @@ export default {
         })
         .then(response => {
           const data = response.data;
-          console.log('data', data);
           if (response.code == 1) {
             if (data.length > 0) {
               this.addressData = data[0]
@@ -345,24 +338,38 @@ export default {
         .then(response => {
           const data = response.data;
           if (response.code === 1) {
-            console.log('response', data);
             this.pay(data)
             // this.productList = data
+          }else{
+            this.disabled = false
+            this.$api.msg(response.msg)
           }
         });
     },
     pay(order_sn){
+      var _this = this
       this.disabled=true
       this.loading=true
       this.$http
         .post(`/addons/epay/order/pay`,{
-          order_sn:order_sn
+          order_sn:order_sn,
+          method:'mp'
         } )
         .then(response => {
           const data = response.data;
           console.log('data', data);
           if (response.code == 1) {
+            // #ifdef MP-WEIXIN
             this.requestPayment(data)
+            // #endif
+            // #ifdef H5
+            if (this.$jwx && this.$jwx.isWechat()) {
+              console.log('this.$jwx--data:',data)
+              this.$jwx.wxpay(data,function(res){
+                  console.log('res:H5支付',res)
+              })
+            }
+            // #endif
           }else{
              this.$api.msg(response.msg)
           }

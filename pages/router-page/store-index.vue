@@ -205,9 +205,15 @@ export default {
     },
     navToLogin() {
       if (!this.userInfo.mobile) {
-        uni.navigateTo({
-          url: '/pages/login/login'
-        });
+       // #ifdef MP-WEIXIN
+       let url = '/pages/login/login';
+       uni.navigateTo({
+         url
+       }) 
+       // #endif
+       // #ifdef H5
+       this.$common.authH5()
+       // #endif
         return false;
       } else {
         return true;

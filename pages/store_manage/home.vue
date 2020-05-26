@@ -68,10 +68,15 @@
 			 */
 			navTo(url){
 				if(!this.userInfo.nickname){
-					let url = '/pages/login/login'
+          // #ifdef MP-WEIXIN
+          let url = '/pages/login/login';
           uni.navigateTo({
-          	url
+            url
           }) 
+          // #endif
+          // #ifdef H5
+          this.$common.authH5()
+          // #endif
           return
 				}
 				// uni.navigateTo({  
@@ -82,10 +87,15 @@
         // this.navTo()
         console.log('item',item)
         if(!this.userInfo.nickname){
+          // #ifdef MP-WEIXIN
           let url = '/pages/login/login'
           uni.navigateTo({
-          	url
+            url
           }) 
+          // #endif
+          // #ifdef H5
+          this.$common.authH5()
+          // #endif
         }else{
          uni.setNavigationBarTitle({
          	title:item.title

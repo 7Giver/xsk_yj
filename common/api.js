@@ -15,51 +15,51 @@ function deepCopy(newobj, obj) {
 }
 
 //跳转到登陆页面
-function _jumpToLogin(method) {        
-    uni.showToast({
-      title: '请先登录!',
-      icon: 'none',
-      duration: 1000,
-      success: function(res) {
-        // #ifdef H5 || APP-PLUS
-        setTimeout(() => {
-			uni.hideToast();
-			uni.navigateTo({
-				url: '/pages/login/login'
-			})
-        }, 1000)
-        // #endif
-        // #ifdef MP-WEIXIN || MP-ALIPAY
-        setTimeout(() => {
-			uni.hideToast();
-			uni.navigateTo({
-				url: '/pages/login/choose',
-				animationType: 'pop-in',
-				animationDuration: 200
-			})
-        }, 500)
-        // #endif
-      }
-    })  
+function _jumpToLogin(method) {
+  uni.showToast({
+    title: '请先登录!',
+    icon: 'none',
+    duration: 1000,
+    success: function(res) {
+      // #ifdef H5 || APP-PLUS
+      setTimeout(() => {
+        uni.hideToast();
+        uni.navigateTo({
+          url: '/pages/login/login'
+        })
+      }, 1000)
+      // #endif
+      // #ifdef MP-WEIXIN || MP-ALIPAY
+      setTimeout(() => {
+        uni.hideToast();
+        uni.navigateTo({
+          url: '/pages/login/choose',
+          animationType: 'pop-in',
+          animationDuration: 200
+        })
+      }, 500)
+      // #endif
+    }
+  })
 }
 
 //跳转到登陆页面
-function jumpToLogin(method) {        
-    uni.showToast({
-      title: '请先登录!',
-      icon: 'none',
-      duration: 1000,
-      success: function(res) {
-        setTimeout(() => {
-			uni.hideToast();
-			uni.navigateTo({
-				url: '/pages/login/base',
-				animationType: 'pop-in',
-				animationDuration: 200
-			})
-        }, 1000)
-      }
-    })  
+function jumpToLogin(method) {
+  uni.showToast({
+    title: '请先登录!',
+    icon: 'none',
+    duration: 1000,
+    success: function(res) {
+      setTimeout(() => {
+        uni.hideToast();
+        uni.navigateTo({
+          url: '/pages/login/base',
+          animationType: 'pop-in',
+          animationDuration: 200
+        })
+      }, 1000)
+    }
+  })
 }
 
 
@@ -133,21 +133,18 @@ function timeToDate(date, flag = false) {
   var date = new Date(date * 1000) //如果date为13位不需要乘1000
   var Y = date.getFullYear() + '-'
   var M =
-    (date.getMonth() + 1 < 10
-      ? '0' + (date.getMonth() + 1)
-      : date.getMonth() + 1) + '-'
+    (date.getMonth() + 1 < 10 ?
+      '0' + (date.getMonth() + 1) :
+      date.getMonth() + 1) + '-'
   var D = (date.getDate() < 10 ? '0' + date.getDate() : date.getDate()) + ' '
   var h = (date.getHours() < 10 ? '0' + date.getHours() : date.getHours()) + ':'
   var m =
     (date.getMinutes() < 10 ? '0' + date.getMinutes() : date.getMinutes()) + ':'
   var s = date.getSeconds() < 10 ? '0' + date.getSeconds() : date.getSeconds()
-  if(flag)
-  {
-	  return Y + M + D
-  }
-  else
-  {
-	  return Y + M + D + h + m + s
+  if (flag) {
+    return Y + M + D
+  } else {
+    return Y + M + D + h + m + s
   }
 }
 
@@ -191,6 +188,7 @@ function navigateTo(url) {
     animationDuration: 300
   })
 }
+
 function switchTab(url) {
   uni.switchTab({
     url: url,
@@ -241,7 +239,7 @@ function isWeiXinBrowser() {
     return false
   }
   // #endif
-  
+
   return false
 }
 
@@ -250,22 +248,22 @@ function isWeiXinBrowser() {
  * @param {Object} value1
  * @param {Object} value2
  */
-function moneySum(value1,value2){
-	return (parseFloat(value1)+parseFloat(value2)).toFixed(2);
+function moneySum(value1, value2) {
+  return (parseFloat(value1) + parseFloat(value2)).toFixed(2);
 }
 /**
  * 金额相减
  * @param {Object} value1
  * @param {Object} value2
  */
-function moneySub(value1,value2){
-	let res = (parseFloat(value1)-parseFloat(value2)).toFixed(2);
-	return res>0?res:0;
+function moneySub(value1, value2) {
+  let res = (parseFloat(value1) - parseFloat(value2)).toFixed(2);
+  return res > 0 ? res : 0;
 }
 /**
  * H5授权跳转
  */
-function authH5(){
+function authH5() {
   let url = encodeURIComponent(location.href)
   location.href = `${baseURL}/addons/xshop/wechat/index?path=${url}`
   return false

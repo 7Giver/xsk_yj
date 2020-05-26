@@ -66,10 +66,12 @@
     "h5" : {
         "devServer" : {
             "port" : 80,
-            "disableHostCheck" : true
+            "disableHostCheck" : true,
+            "https" : false
         },
         "router" : {
-            "mode" : "history"
+            "mode" : "history",
+            "base" : ""
         },
         "sdkConfigs" : {
             "maps" : {}

@@ -21,15 +21,15 @@
       </view>
       <view class="header-b" @click="developing">
         <view class="list">
-          <view>
+          <view  @click.stop="_toOtherPage('/pages/mine_comp/collect')">
             <text class="num">--</text>
             <text>收藏夹</text>
           </view>
-          <view>
+          <view @click.stop="_toOtherPage('/pages/mine_comp/attention')">
             <text class="num">--</text>
             <text>关注店铺</text>
           </view>
-          <view>
+          <view @click.stop="_toOtherPage('/pages/mine_comp/footprint')">
             <text class="num">--</text>
             <text>足迹</text>
           </view>
@@ -214,7 +214,7 @@ export default {
         {
           src: 'https://cdn.swh296.com/img/mine/icon_advise.png',
           text: '投诉建议',
-          url: '/pages/advise/advise'
+          url: '/pages/mine_comp/advice'
         }
       ],
       orderList: [
@@ -358,13 +358,12 @@ export default {
               url: url
             });
           }
-        } else if (url === '/pages/advise/advise') {
-          _this.$api.msg('正在开发中...');
-          // uni.navigateTo({
-          //   url:'/pages/login/login'
-          // })
-          return;
-        } else {
+        }
+        // else if (url === '/pages/mine/advise') {
+        //   _this.$api.msg('正在开发中...');
+        //   return;
+        // }
+        else {
           if(url=='/pages/router-page/home'){
             this.setStoreId(this.userInfo.store_id)
           }
@@ -373,9 +372,15 @@ export default {
           });
         }
       } else {
+        // #ifdef MP-WEIXIN
+        let url = '/pages/login/login';
         uni.navigateTo({
-          url: '/pages/login/login'
-        });
+          url
+        }) 
+        // #endif
+        // #ifdef H5
+        this.$common.authH5()
+        // #endif
       }
     },
     shopinfo(fn) {
