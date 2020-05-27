@@ -26,7 +26,7 @@
         rangeStartTime="8:00:00"
         rangeEndTime="22:00:00"
         defaultTime="2020/3/29 18:00:00"
-        intervalTime="30"
+        intervalTime="15"
         dayStartIntTime="0"
         rangeDay="10"
         disabled="0,2"
@@ -168,7 +168,7 @@ export default {
       isShow: false,
       maskHide: false,
       closeBtn: false,
-      rangeType: true,
+      rangeType: false,
       sendTime:'',
       sendTime1:'',
       isSkuButton: [{

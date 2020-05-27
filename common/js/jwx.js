@@ -29,7 +29,7 @@ export default {
         //返回需要的参数appId,timestamp,noncestr,signature等  
         //注入config权限配置  
         jweixin.config({
-          debug: true,
+          debug: false,
           appId: res.data.data.appId,
           timestamp: res.data.data.timestamp,
           nonceStr: res.data.data.nonceStr,

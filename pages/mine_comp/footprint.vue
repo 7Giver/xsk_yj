@@ -5,7 +5,7 @@
         {{item.time}}
       </view>
       <view class="list">
-        <view class="item" v-for="(s,sIndex) in item.list" :key="sIndex">
+        <view class="item" v-for="(s,sIndex) in item.list" @click="_toProduct(s)" :key="sIndex">
           <image v-if="s.product" :src="s.product.image[0]" mode=""></image>
           <view class="price-inner" v-if="s.product">
              <text>￥{{s.product.price}}</text>
@@ -52,6 +52,12 @@ export default {
     ...mapMutations({
       setStoreId: 'setStoreId'
     }),
+    _toProduct(item){
+      let id = item.product_id
+      uni.navigateTo({
+      	url: `/pages/product/product?id=${id}`
+      })
+    },
     //加载更多
     onReachBottom(){
     	this.getviewList();
