@@ -365,12 +365,15 @@ export default {
             // #ifdef H5
             if (this.$jwx && this.$jwx.isWechat()) {
               console.log('this.$jwx--data:',data)
+              _this.disabled=false
               this.$jwx.wxpay(data,function(res){
                   console.log('res:H5支付',res)
+                  // alert(`JSON.stringify(${res})`)
               })
             }
             // #endif
           }else{
+            this.disabled=false
              this.$api.msg(response.msg)
           }
         })

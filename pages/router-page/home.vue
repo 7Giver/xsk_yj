@@ -133,7 +133,7 @@
             let shareData = {
              title: _this.storeInfo.name +'的店铺', // 分享标题
              desc: '', // 分享描述
-             shareUrl: window.location.href + '?store_id=' + this.storeId, // 分享链接
+             shareUrl: window.location.href + '?store_id=' + _this.storeId, // 分享链接
              imgUrl:_this.storeInfo.log_image_text || 'https://img-cdn-qiniu.dcloud.net.cn/uniapp/app/share-logo@3.png', // 分享图标
             }
             _this.$jwx.onMenuShareAppMessage(shareData,function(response){
