@@ -43,6 +43,7 @@ const store = new Vuex.Store({
     storeId:'', //进入店铺的id 
     tabbarTextColor: "#D7D7D7",
     tabbarTextActiveColor: "#F64443",
+    tabbarAppointTextActiveColor: "#374159",
     // 店铺管理
     manage_tabbar: [{
         "iconPath": "https://cdn.swh296.com/img/store-manage/store-index.png",
@@ -69,11 +70,32 @@ const store = new Vuex.Store({
       //   "page": "manage-statistics"
       // }
     ],
+    appoint_tabbar:[
+      {
+          "iconPath": "https://cdn.swh296.com/img/appoint/tab_index.png",
+          "selectedIconPath": "https://cdn.swh296.com/img/appoint/tab_index_sel.png",
+          "title": "首页",
+          "page": "appoint-index"
+        },
+        {
+          "iconPath": "https://cdn.swh296.com/img/appoint/tab_order.png",
+          "selectedIconPath": "https://cdn.swh296.com/img/appoint/tab_order_sel.png",
+          "title": "订单",
+          "page": "appoint-order"
+        },
+        {
+          "iconPath": "https://cdn.swh296.com/img/appoint/tab_mine.png",
+          "selectedIconPath": "https://cdn.swh296.com/img/appoint/tab_mine_sel.png",
+          "title": "我的",
+          "page": "appoint-self"
+        }
+    ]
   },
   mutations: {
     SET_COLOR(state, colors) {
       // 底部菜单文字 选中
       state.tabbarTextActiveColor = colors.tabbarTextActiveColor
+      state.tabbarAppointTextActiveColor = colors.tabbarAppointTextActiveColor
       // 底部菜单文字 未选中
       state.tabbarTextColor = colors.tabbarTextColor
     },

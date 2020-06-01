@@ -66,6 +66,10 @@ export default {
        // #ifdef H5
        this.$common.authH5()
        // #endif  
+       }else{
+         uni.navigateTo({
+           url
+         }) 
        }
     },
 		_gManageList(item){

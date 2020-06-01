@@ -90,6 +90,13 @@ Vue.component('cu-page-manage-index',cuPageManageIndex)
 Vue.component('cu-page-manage-order',cuPageManageOrder)
 // Vue.component('cu-page-manage-goods',cuPageManageGoods)
 Vue.component('cu-page-manage-statistics',cuPageManageStatistics)
+// 预约服务模块
+import cuPageAppointIndex from "@/pages/appoint/index.vue"
+import cuPageAppointOrder from "@/pages/appoint/order.vue"
+import cuPageAppointSelf from "@/pages/appoint/self.vue"
+Vue.component('cu-page-appoint-index',cuPageAppointIndex)
+Vue.component('cu-page-appoint-order',cuPageAppointOrder)
+Vue.component('cu-page-appoint-self',cuPageAppointSelf)
 Vue.prototype.$parseHtml = parseHtml
 Vue.prototype.$service = service
 Vue.prototype.$store = store

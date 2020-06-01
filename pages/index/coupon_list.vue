@@ -114,9 +114,7 @@ export default {
     //优惠券列表
     homeCoupons() {
       this.$http
-        .post(`/addons/xshopcoupon/coupon/homeCoupons`, {
-          token: this.token || uni.getStorageSync('state_token')
-        })
+        .post(`/addons/xshopcoupon/coupon/homeCoupons`)
         .then(response => {
           const data = response.data;
           if (response.code === 1) {
