@@ -86,7 +86,27 @@ export const authSetting = function({
     })
   })
 }
-
+// 获取地址
+export const authSettingLocation = function({
+  token
+} = {}) {
+  return new Promise((resolve, reject) => {
+    uni.authorize({
+        scope: 'scope.userLocation',
+        success() {
+            uni.getLocation()
+        }
+    })
+    // uni.getSetting({
+    //   success(res) {
+    //     if (res.authSetting['scope.userLocation']) {
+    //       console.log('--res--',res)
+      
+    //     }
+    //   }
+    // })
+  })
+}
 
 // 获取gethome接口
 export const getBrandData = function({

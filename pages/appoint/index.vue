@@ -18,16 +18,19 @@
     </view>
     <!-- 买菜 -->
     <view class="greens-section" v-if="navid == 3">
-      <view class="greens-item" v-for="(item, index) in greensList" @click="_changeGreen(item)" :class="{ active: item.id == greens_id }" :key="index">
+      <view class="greens-item" v-for="(item, index) in greensList" @click="_changeGreen(item)" :class="{ active: item.code == greens_id }" :key="index">
         <view class="meal">套餐{{ index + 1 }}</view>
-        <view class="center">{{ item.content }}</view>
+        <view class="center">
+          <text v-for="(s,i) in item.value_text" :key="s">{{s.name}} </text>
+        </view>
         <view class="more" @click="_more(item)">
           <text>查看全部</text>
           <text class="price">{{ item.price }}元</text>
         </view>
       </view>
     </view>
-    <button class="s-bg-linear">去下单</button>
+    <button class="s-bg-linear" @click="_authLocaiton">去下单</button>
+    <button open-type="openSetting" @opensetting="_authLocaiton">去下单</button>
     <!-- 示例弹窗 -->
     <view class="draw_modal" v-if="isExampleModal" @click="isExampleModal = false"></view>
     <view class="example-modal" v-if="isExampleModal" @click.stop="isExampleModal = false">
@@ -66,22 +69,99 @@
     </view>
     <!-- 买菜弹窗 -->
     <view class="draw_modal" v-if="isgreensMore" @click="isgreensMore = false"></view>
-    <view class="greens-modal" v-if="isgreensMore" @click.stop="isgreensMore = false">
+    <view class="example-modal" v-if="isgreensMore" @click.stop="isgreensMore = false">
       <view class="title">套餐{{greensInfo.id}}</view>
-      <view class="content">
-        <view class="greens-item" v-for="(item,index) in ">
+      <!-- <view class="content"> -->
+        <scroll-view scroll-y="true" class="content">
+        <view class="greens-modal-item" v-for="(item,index) in greensInfo.list" :key="index">
           <text>{{item.name}}</text>
+          <text class="weight">{{item.weight}}</text>
         </view>
-      </view>
+        </scroll-view>
+      <!-- </view> -->
       <image class="close" src="https://cdn.swh296.com/img/appoint/icon_close.png" mode=""></image>
     </view>
   </view>
 </template>
 
 <script>
+  import {authSettingLocation} from '../../common/js/commonInfo.js'
 export default {
   data() {
     return {
+      greensInfo:{
+        id:1,
+        list:[
+          {
+            name:'黄瓜',
+            weight:'500g'
+          }, 
+          {
+            name:'苹果',
+            weight:'500g'
+          },
+          {
+            name:'地瓜',
+            weight:'500g'
+          },
+          {
+            name:'香蕉',
+            weight:'1000g'
+          },
+          {
+            name:'地瓜',
+            weight:'500g'
+          },
+          {
+            name:'香蕉',
+            weight:'1000g'
+          },
+          {
+            name:'地瓜',
+            weight:'500g'
+          },
+          {
+            name:'香蕉',
+            weight:'1000g'
+          },
+          {
+            name:'地瓜',
+            weight:'500g'
+          },
+          {
+            name:'香蕉',
+            weight:'1000g'
+          },
+          {
+            name:'地瓜',
+            weight:'500g'
+          },
+          {
+            name:'香蕉',
+            weight:'1000g'
+          },
+          {
+            name:'香蕉',
+            weight:'1000g'
+          },
+          {
+            name:'地瓜',
+            weight:'500g'
+          },
+          {
+            name:'香蕉',
+            weight:'1000g'
+          },
+          {
+            name:'地瓜',
+            weight:'500g'
+          },
+          {
+            name:'香蕉',
+            weight:'1000g'
+          }
+        ]
+      },
       isgreensMore:false,
       textareaData: '',
       navList: [
@@ -133,7 +213,39 @@ export default {
       ]
     };
   },
+  mounted() {
+    this.getPackageList()
+  },
   methods: {
+    getPackageList(){
+      var _this = this
+      this.$http
+        .post(`/addons/microlife/package/list`)
+        .then(response => {
+          const data = response.data
+          console.log('getPackageList',data)
+          if (response.code === 1) {
+            _this.greensList = data.data
+            _this.greens_id = _this.greensList[0].code
+            _this.greensList.map(v=>{
+              v.value_text.map(s=>{
+                s.name = s.name + ' '
+              })
+            })
+          }
+        });
+    },
+    _authLocaiton(){
+      // authSettingLocation()
+      console.log('当前位置的经度：');
+      uni.getLocation({
+          type: 'wgs84',
+          success: function (res) {
+              console.log('当前位置的经度：' + res.longitude);
+              console.log('当前位置的纬度：' + res.latitude);
+          }
+      });
+    },
     _more(item) {
       this.isgreensMore = true;
     },
@@ -237,6 +349,16 @@ page,
     margin: 0 30rpx;
     padding-bottom: 20rpx;
     background-color: #fff;
+    .greens-modal-item{
+      @include flexX;  
+      @include flexJ;  
+      height: 74rpx;
+      font-size: 30rpx;
+      .weight{
+        margin-left: 50rpx;
+        color: #ec6045;
+      }
+    }
     .item {
       margin-top: 40rpx;
       padding: 0 20rpx;

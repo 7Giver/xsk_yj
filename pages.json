@@ -333,6 +333,21 @@
         "navigationBarTitleText": "开通会员"
       }
     },
+    {
+      "path": "pages/appoint/create_order",
+      "style": {
+        "navigationBarTitleText": "服务下单"
+      }
+    },
+    {
+      "path": "pages/appoint/success",
+      "style": {
+        "navigationBarTitleText": "服务下单",
+        "app-plus": {
+          "bounce": "none"
+        }
+      }
+    },
     // 兑换营家币
     {
       "path": "pages/yj_comp/recharge",
@@ -479,7 +494,20 @@
         "navigationBarTitleText": "商品列表"
       }
     }
+    // {
+    //   "pages":["pages/appoint/home"],
+    //   "permission": {
+    //     "scope.userLocation": {
+    //       "desc": "位置信息效果展示"
+    //     }
+    //   }
+    // }
     ],
+    // "permission": {
+    //   "scope.userLocation": {
+    //     "desc": "位置信息效果展示"
+    //   }
+    // },
   "globalStyle": {
     "navigationBarTextStyle": "black",
     "navigationBarTitleText": "",
@@ -520,6 +548,9 @@
       }
     ]
   },
+  // "navigateToMiniProgramAppIdList": [
+  //     "wxf7da6a8a73a7d424"
+  // ],
   "condition": { //模式配置，仅开发期间生效
     "current": 0, //当前激活的模式(list 的索引项)
     "list": [{
