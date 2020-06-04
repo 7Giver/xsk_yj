@@ -10,7 +10,7 @@
         </view>
     </view>
     <navigator url="./pay">
-      <view class="kt-section">
+      <view class="kt-section" v-if="!isroleId">
         <button type="default" class="cu-btn">立即开通</button>
       </view>
     </navigator>
@@ -47,7 +47,8 @@ export default {
           text: '我的客服',
           url: '/pages/yj/index'
         }
-      ]
+      ],
+      isroleId:true
     }
   },
   computed: {
@@ -58,11 +59,23 @@ export default {
     if(!this.userInfo.nickname){
        this.setUserInfo(uni.getStorageSync('state_userInfo'))
     }
+    this.getMemStatus()
   },
   methods:{
     ...mapMutations({
       setUserInfo: 'setUserInfo',
     }),
+    getMemStatus(){
+      var _this = this
+      this.$http
+        .post(`/addons/microlife/member/status`)
+        .then(response => {
+          const data = response.data
+          if (response.code === 1) {
+            this.isroleId =data  &&  data.expiretime_text ? true : false
+          }
+        });
+    },
     _toOtherPage(item) {
       let url = item.url
       uni.navigateTo({
@@ -75,7 +88,7 @@ export default {
 
 <style lang="scss" scoped>
 @import 'mixin.scss';
-page,.container{
+body,page,.container{
   background-color: #F7F9FB;
 }
 .kt-section{

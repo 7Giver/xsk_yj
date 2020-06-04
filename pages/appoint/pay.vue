@@ -66,34 +66,149 @@
         time_meal:1,
         productId:0,
         order_price:yearPrice,
-        time_price:timePrice
+        time_price:timePrice,
+        type:'member',
+        quantity:1
       }
     },
     components:{
       uniNumberBox
     },
     methods:{
+      openMember(){
+        this.disabled = true
+        var _this = this
+        let method = ''
+        // #ifdef H5
+        method = 'mp'
+        // #endif
+        // #ifdef MP-WEIXIN
+        method = 'miniapp'
+        // #endif
+        this.$http
+          .post(`/addons/microlife/member/add`,{
+            quantity:this.quantity,
+            type:this.type,
+            method:method
+          })
+          .then(response => {
+            this.disabled = false
+            const data = response.data
+           if (response.code == 1) {
+             // #ifdef MP-WEIXIN
+             this.requestPayment(data)
+             // #endif
+             // #ifdef H5
+             if (this.$jwx && this.$jwx.isWechat()) {
+               console.log('this.$jwx--data:',data)
+               _this.disabled=false
+               this.$jwx.wxpay(data,function(res){
+                   console.log('res:H5支付',res)
+                   // alert(`JSON.stringify(${res})`)
+               })
+             }
+             // #endif
+           }else{
+             this.disabled=false
+              this.$api.msg(response.msg)
+           }
+          });
+      },
+      requestPayment(paymentData){
+        uni.requestPayment({
+            timeStamp: paymentData.timeStamp,
+            nonceStr: paymentData.nonceStr,
+            package: paymentData.package,
+            signType: 'MD5',
+            paySign: paymentData.paySign,
+            success: (res) => {
+               this.$api.msg('支付成功')
+               this.disabled=false
+               this.loading=false
+               uni.switchTab({
+                  url:'/pages/mine/index'
+               })
+            },
+            fail: (res) => {
+              this.disabled=false
+              this.loading=false
+              // 原因为: " + res.errMsg
+                uni.showModal({
+                    content: "支付失败",
+                    showCancel: false
+                })
+            },
+            complete: () => {
+                this.loading = false;
+             
+            }
+        })
+      }, 
       numberChange(data) {
+        this.quantity = data.number || 1
         this.order_price = this.time_price =  data.number * 5
       },
       submit(){
-        
+        this.disabled = true
+        this.openMember()
       },
       _choose(text){
         if(text == 'year'){
           this.meal_id = 1 
-          this.order_price =yearPrice
+          this.type = 'member'
+          this.order_price = yearPrice
         }else{
           this.meal_id = 2
+          this.type = 'coupon'
           this.order_price = this.time_price
         }
       }
     }
   }
 </script>
-
+<style lang="scss">
+  @import 'mixin.scss';
+  /deep/.uni-numbox{
+    width: auto;
+    margin-left: 25rpx;
+    position: relative;
+    border: none;
+    /deep/.uni-numbox-minus,/deep/.uni-numbox-plus{
+      width: 32rpx;
+      height: 32rpx;
+      border: none !important;
+      background-color: #ECCA9D;
+      border-radius: 50%;
+      @include flexY;
+      @include flexJ;
+      .yticon{
+        color: #fff;
+        font-size: 20rpx;
+      }
+    }
+  }
+</style>
 <style lang="scss" scoped>
   @import 'mixin.scss';
+  /deep/.uni-numbox{
+    width: auto;
+    margin-left: 25rpx;
+    position: relative;
+    border: none;
+    /deep/.uni-numbox-minus,/deep/.uni-numbox-plus{
+      width: 32rpx;
+      height: 32rpx;
+      border: none !important;
+      background-color: #ECCA9D;
+      border-radius: 50%;
+      @include flexY;
+      @include flexJ;
+      .yticon{
+        color: #fff;
+        font-size: 20rpx;
+      }
+    }
+  }
   page,.container{
     background:linear-gradient(0deg,rgba(253,239,227,1),#FDF1E6);
     .pay_img1{
@@ -125,7 +240,7 @@
             background:#F2AC80;
           }
         }
-        .uni-numbox{
+        /deep/.uni-numbox{
           width: auto;
           margin-left: 25rpx;
           position: relative;

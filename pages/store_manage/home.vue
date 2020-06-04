@@ -71,7 +71,7 @@
           // #ifdef MP-WEIXIN
           let url = '/pages/login/login';
           uni.navigateTo({
-            url
+            url:url
           }) 
           // #endif
           // #ifdef H5

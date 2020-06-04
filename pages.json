@@ -340,6 +340,18 @@
       }
     },
     {
+      "path": "pages/appoint/send_receive_order",
+      "style": {
+        "navigationBarTitleText": "服务下单"
+      }
+    },
+    {
+      "path": "pages/appoint/expressage",
+      "style": {
+        "navigationBarTitleText": "快递分类"
+      }
+    },
+    {
       "path": "pages/appoint/success",
       "style": {
         "navigationBarTitleText": "服务下单",

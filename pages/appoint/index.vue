@@ -1,6 +1,6 @@
 <template>
   <view class="container">
-    <navigator url="./pay"><image class="banner" src="https://cdn.swh296.com/img/appoint/appoint_banner.png" mode=""></image></navigator>
+    <navigator url="./pay"><image class="banner" v-if="!isroleId" src="https://cdn.swh296.com/img/appoint/appoint_banner.png" mode=""></image></navigator>
     <view class="nav-list">
       <view class="item" v-for="(item, index) in navList" @click="_changeNav(item)" :key="index">
         <image :src="item.image" mode=""></image>
@@ -10,7 +10,7 @@
     <!-- 取衣服 -->
     <view class="textarea-section" v-if="navid == 1">
       <textarea value="" class="textarea" v-model="textareaData" placeholder="您可以填写服务详细信息，跑腿小哥为您 服务！" />
-      <view class="example-inner" @click="isExampleModal = true">
+      <view class="example-inner" @click="_moreExample">
         <text>点击可快捷输入</text>
         <text class="active">查看填写示例</text>
         <text class="yticon icon-you"></text>
@@ -18,10 +18,10 @@
     </view>
     <!-- 买菜 -->
     <view class="greens-section" v-if="navid == 3">
-      <view class="greens-item" v-for="(item, index) in greensList" @click="_changeGreen(item)" :class="{ active: item.code == greens_id }" :key="index">
+      <view class="greens-item" v-for="(item, index) in greensList" @click="_changeGreen(item,index)" :class="{ active: item.code == greens_id }" :key="index">
         <view class="meal">套餐{{ index + 1 }}</view>
         <view class="center">
-          <text v-for="(s,i) in item.value_text" :key="s">{{s.name}} </text>
+          <text v-for="(s,i) in item.value_text" :key="i">{{s.name}} </text>
         </view>
         <view class="more" @click="_more(item)">
           <text>查看全部</text>
@@ -29,37 +29,17 @@
         </view>
       </view>
     </view>
-    <button class="s-bg-linear" @click="_authLocaiton">去下单</button>
-    <button open-type="openSetting" @opensetting="_authLocaiton">去下单</button>
+    <button class="s-bg-linear" @click="_toOrder">去下单</button>
+    <button @click="_authLocaiton">去下单</button>
+    <!-- <button open-type="openSetting" @opensetting="_authLocaiton">去下单</button> -->
     <!-- 示例弹窗 -->
     <view class="draw_modal" v-if="isExampleModal" @click="isExampleModal = false"></view>
     <view class="example-modal" v-if="isExampleModal" @click.stop="isExampleModal = false">
       <view class="title">填写示例</view>
       <scroll-view scroll-y="true" class="content">
-        <view class="item">
-          <view class="text">衣服放在快递柜子上面,非常感谢！</view>
-          <view class="copy" @click="_copy">
-            <image src="https://cdn.swh296.com/img/appoint/icon_copy.png" mode=""></image>
-            <text>复制文本</text>
-          </view>
-        </view>
-        <view class="item">
-          <view class="text">衣服放在快递柜子上面,非常感谢！</view>
-          <view class="copy">
-            <image src="https://cdn.swh296.com/img/appoint/icon_copy.png" mode=""></image>
-            <text>复制文本</text>
-          </view>
-        </view>
-        <view class="item">
-          <view class="text">衣服放在快递柜子上面,非常感谢！</view>
-          <view class="copy">
-            <image src="https://cdn.swh296.com/img/appoint/icon_copy.png" mode=""></image>
-            <text>复制文本</text>
-          </view>
-        </view>
-        <view class="item">
-          <view class="text">衣服放在快递柜子上面,非常感谢！</view>
-          <view class="copy">
+        <view class="item" v-for="(item,index) in exampleList" :key="index">
+          <view class="text">{{item.value}}</view>
+          <view class="copy" @click="_copy(item)">
             <image src="https://cdn.swh296.com/img/appoint/icon_copy.png" mode=""></image>
             <text>复制文本</text>
           </view>
@@ -89,77 +69,10 @@
 export default {
   data() {
     return {
+      exampleList:[],
       greensInfo:{
-        id:1,
+        id:'',
         list:[
-          {
-            name:'黄瓜',
-            weight:'500g'
-          }, 
-          {
-            name:'苹果',
-            weight:'500g'
-          },
-          {
-            name:'地瓜',
-            weight:'500g'
-          },
-          {
-            name:'香蕉',
-            weight:'1000g'
-          },
-          {
-            name:'地瓜',
-            weight:'500g'
-          },
-          {
-            name:'香蕉',
-            weight:'1000g'
-          },
-          {
-            name:'地瓜',
-            weight:'500g'
-          },
-          {
-            name:'香蕉',
-            weight:'1000g'
-          },
-          {
-            name:'地瓜',
-            weight:'500g'
-          },
-          {
-            name:'香蕉',
-            weight:'1000g'
-          },
-          {
-            name:'地瓜',
-            weight:'500g'
-          },
-          {
-            name:'香蕉',
-            weight:'1000g'
-          },
-          {
-            name:'香蕉',
-            weight:'1000g'
-          },
-          {
-            name:'地瓜',
-            weight:'500g'
-          },
-          {
-            name:'香蕉',
-            weight:'1000g'
-          },
-          {
-            name:'地瓜',
-            weight:'500g'
-          },
-          {
-            name:'香蕉',
-            weight:'1000g'
-          }
         ]
       },
       isgreensMore:false,
@@ -173,7 +86,8 @@ export default {
         {
           image: 'https://cdn.swh296.com/img/appoint/icon_kuaidi.png',
           text: '快递',
-          id: 2
+          id: 2,
+          url:'/pages/appoint/create_order'
         },
         {
           image: 'https://cdn.swh296.com/img/appoint/icon_maicai.png',
@@ -183,40 +97,55 @@ export default {
         {
           image: 'https://cdn.swh296.com/img/appoint/icon_dqj.png',
           text: '代取件',
-          id: 4
+          id: 4,
+          url:'/pages/appoint/create_order'
         },
         {
           image: 'https://cdn.swh296.com/img/appoint/icon_jc.png',
           text: '寄存',
-          id: 5
+          id: 5,
+          url:'/pages/appoint/send_receive_order'
         }
       ],
       navid: 1,
       isExampleModal: false,
-      greens_id: 1,
+      greens_id: '',
       greensList: [
-        {
-          id: 1,
-          content: '西红柿  紫甘蓝  牛 肉 鸡蛋 鲫鱼...',
-          price: 50
-        },
-        {
-          id: 2,
-          content: '西红柿  紫甘蓝  牛 肉 鸡蛋 鲫鱼...',
-          price: 100
-        },
-        {
-          id: 3,
-          content: '西红柿  紫甘蓝  牛 肉 鸡蛋 鲫鱼...',
-          price: 100
-        }
-      ]
+      ],
+      isroleId:true
     };
   },
   mounted() {
     this.getPackageList()
+    this.getMemStatus()
   },
   methods: {
+    getMemStatus(){
+      var _this = this
+      this.$http
+        .post(`/addons/microlife/member/status`)
+        .then(response => {
+          const data = response.data
+          if (response.code === 1) {
+            this.isroleId =data && data.expiretime_text ? true : false
+          }
+        });
+    },
+    // 通用备注
+    general(){
+      var _this = this
+      this.$http
+        .post(`/addons/microlife/remark/general`)
+        .then(response => {
+          const data = response.data
+          console.log('general',data)
+          if (response.code === 1) {
+            this.exampleList = data
+            this.isExampleModal = true
+            uni.hideLoading()
+          }
+        });
+    },
     getPackageList(){
       var _this = this
       this.$http
@@ -235,28 +164,101 @@ export default {
           }
         });
     },
-    _authLocaiton(){
-      // authSettingLocation()
-      console.log('当前位置的经度：');
-      uni.getLocation({
-          type: 'wgs84',
+    _moreExample(){
+      uni.showLoading({
+        title:'加载中...'
+      })
+      this.general()
+    },
+    _toOrder(){
+      // 类型:1=洗衣,2=购物,3=寄快递,4=取快递,5=寄存
+      // 取送衣
+      
+      // 快递
+      
+      // 买菜
+      
+      // 代取件
+      
+      // 寄存物品
+      let optData ={
+        type:this.navid,
+        value:this.textareaData
+      }
+      uni.navigateTo({
+        url:`/pages/appoint/create_order?optData=${JSON.stringify(optData)}`
+      })
+    },
+    _authLocaiton(e){
+      console.log(e)
+      // let detail = e.detail.authSetting
+      uni.chooseLocation({
           success: function (res) {
-              console.log('当前位置的经度：' + res.longitude);
-              console.log('当前位置的纬度：' + res.latitude);
+              console.log('位置名称：' + res.name);
           }
-      });
+      })
+      // uni.openSetting({
+      //   success(res) {
+      //     console.log(res.authSetting)
+      //   }
+      // });
+      // if(detail['scope.userLocation']){
+      //   uni.chooseLocation({
+      //       success: function (res) {
+      //           console.log('位置名称：' + res.name);
+      //       }
+      //   });
+        
+        // uni.getLocation({
+        //     type: 'wgs84',
+        //     success: function (res) {
+        //         uni.chooseLocation({
+        //             success: function (res) {
+        //                 if(typeof callback =='function'){
+        //                   callback(res)
+        //                 }
+        //             }
+        //         });
+        //     },fail(err) {
+        //       console.warn('err',err)
+        //       if(typeof callback =='function'){
+        //         callback(err)
+        //       }
+        //     }
+        // });
+      // }
+      // authSettingLocation(function(res){
+      //   console.log('_authLocaiton',res)
+      //   if(res.errMsg=='getLocation:fail auth deny'){
+          
+      //   }
+      // })
     },
     _more(item) {
       this.isgreensMore = true;
     },
-    _changeGreen(item) {
-      this.greens_id = item.id;
+    _changeGreen(item,index) {
+      this.greens_id = item.code
+      console.log(item.value_text)
+      this.greensInfo = {
+        id:index + 1,
+        list:item.value_text
+      }
     },
     _changeNav(item) {
-      this.navid = item.id;
+      this.navid = item.id
+      if(item.url){
+        let optData ={
+          type:this.navid,
+          value:this.textareaData
+        }
+        uni.navigateTo({
+          url:item.url + `?optData=${JSON.stringify(optData)}`
+        })
+      }
     },
-    _copy() {
-      this.textareaData = '衣服放在快递柜子上面,非常感谢！';
+    _copy(item) {
+      this.textareaData = item.value
       this.isExampleModal = false;
     }
   }
@@ -265,7 +267,7 @@ export default {
 
 <style lang="scss" scoped>
 @import 'mixin.scss';
-page,
+body,page,
 .container {
   background-color: #f7f9fb;
 }

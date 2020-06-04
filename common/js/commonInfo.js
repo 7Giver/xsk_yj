@@ -87,27 +87,130 @@ export const authSetting = function({
   })
 }
 // 获取地址
-export const authSettingLocation = function({
-  token
-} = {}) {
+export const authSettingLocation = function(callback) {
   return new Promise((resolve, reject) => {
-    uni.authorize({
-        scope: 'scope.userLocation',
-        success() {
-            uni.getLocation()
+    uni.getLocation({
+        type: 'wgs84',
+        success: function (res) {
+            uni.chooseLocation({
+                success: function (res) {
+                    if(typeof callback =='function'){
+                      callback(res)
+                    }
+                }
+            });
+        },fail(err) {
+          console.warn('err',err)
+          if(typeof callback =='function'){
+            callback(err)
+          }
         }
-    })
+    });
     // uni.getSetting({
     //   success(res) {
+    //     console.log('uni.getSetting',res)
     //     if (res.authSetting['scope.userLocation']) {
-    //       console.log('--res--',res)
-      
+    //       uni.chooseLocation({
+    //           success: function (res) {
+    //               // console.log('位置名称：' + res.name);
+    //               // console.log('详细地址：' + res.address);
+    //               // console.log('纬度：' + res.latitude);
+    //               // console.log('经度：' + res.longitude);
+    //               if(typeof callback =='function'){
+    //                 callback(res)
+    //               }
+    //           }
+    //       });
+    //     }else{
+    //       uni.authorize({
+    //           scope: 'scope.userLocation',
+    //           success() {
+    //               uni.getLocation({
+    //                   type: 'wgs84',
+    //                   success: function (res) {
+    //                       uni.chooseLocation({
+    //                           success: function (res) {
+    //                               // console.log('位置名称：' + res.name);
+    //                               // console.log('详细地址：' + res.address);
+    //                               // console.log('纬度：' + res.latitude);
+    //                               // console.log('经度：' + res.longitude);
+    //                               if(typeof callback =='function'){
+    //                                 callback(res)
+    //                               }
+    //                           }
+    //                       });
+                    
+    //                   }
+    //               });
+    //           }
+    //       })
     //     }
     //   }
     // })
   })
 }
+//打开地图
+export function chooseLocation(callback){
+    // 先判断定位权限是否开启
+    uni.getLocation({
+        type: 'wgs84',
+        success(res){
+            //定位权限开启，打开地图
+            uni.chooseLocation({
+                success: function (res) {
+                    if(typeof callback =='function'){
+                      callback(res)
+                    }
+                }
+            });
+        },
+        fail(e) {
+            // 定位权限未开启，引导设置
+            uni.showModal({
+                title: '温馨提示',
+                content: '您已拒绝定位,请开启',
+                confirmText: '去设置',
+                success(res){
+                    if (res.confirm) {
+                        //打开授权设置
+                        openSetting()
+                    }
+                }
+            })
+        }
+        
+        
+        
+    })
+}
 
+//打开授权设置（必须用户点击小程序才能打开授权设置，所以前面加了showModel）
+export function openSetting(){
+    // 打开小程序的设置
+    // #ifdef MP-WEIXIN
+    uni.openSetting({
+      success(res) {
+        console.log(res.authSetting)
+      }
+    });
+    // #endif
+    
+    // App跳转系统的设置界面
+    // #ifdef APP-PLUS
+    uni.getSystemInfo({
+        success(res) {
+            if(res.platform=='ios'){ //IOS
+                plus.runtime.openURL("app-settings://");
+            } else if (res.platform=='android'){ //安卓
+                let main = plus.android.runtimeMainActivity();
+                let Intent = plus.android.importClass("android.content.Intent");
+                let mIntent = new Intent('android.settings.ACTION_SETTINGS');
+                main.startActivity(mIntent);
+            }
+        }
+    });
+    // #endif
+}
 // 获取gethome接口
 export const getBrandData = function({
   token,

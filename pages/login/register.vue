@@ -73,7 +73,6 @@ export default {
       setToken: 'setToken'
     }),
     _toAgreement(){
-      console.log('1')
       uni.navigateTo({
         url:'/pages/aggrement/aggrement'
       })

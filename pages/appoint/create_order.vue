@@ -51,7 +51,7 @@
         <text class="yticon icon-you"></text>
       </view>
     </view>
-    <view class="service-item time">
+    <view class="service-item time" @click="_chooseDelivery">
       <text class="ser-l">选择快递</text>
       <view class="ser-r"><text class="yticon icon-you"></text></view>
     </view>
@@ -63,7 +63,11 @@
     </view>
     <view class="tb-list">
       <view class="service-item "><text class="ser-l">服务信息</text></view>
-      <view class="input-inner"><textarea value="" placeholder="如有多个快递，取件码请用“、”隔开, 注*邮寄快递无需填写取件码" /></view>
+      <view class="input-inner"><textarea value="" v-model="serviceMsg" placeholder="如有多个快递，取件码请用“、”隔开, 注*邮寄快递无需填写取件码" /></view>
+    </view>
+    <view class="tb-list">
+      <view class="service-item "><text class="ser-l">物品</text></view>
+      <view class="input-inner"><textarea value="" v-model="goodsMsg" placeholder="请输入代取件的物品" /></view>
     </view>
     <view class="price-section">
       <view class="service-item ">
@@ -102,6 +106,8 @@ export default {
   components: { hTimeAlert,simpleAddress },
   data() {
     return {
+      optData:{},
+      userRemark:[],
       isShow: false,
       maskHide: false,
       closeBtn: false,
@@ -111,8 +117,15 @@ export default {
       order_price:100,
       disabled:false,
       cityPickerValueDefault: [0, 0, 1],
-      receiveAddress:''
-    };
+      receiveAddress:'',
+      serviceMsg:'',
+      goodsMsg:'' //物品
+  }
+  },
+  onLoad(options){
+    this.optData =JSON.parse(options.optData)
+    this.serviceMsg = this.optData.value || ''
+    console.log(this.optData)
   },
   methods: {
     openAddres() {
@@ -122,6 +135,11 @@ export default {
     onConfirm(e) {
       let labelArr =  e.labelArr
       this.receiveAddress = labelArr.join('')
+    },
+    _chooseDelivery(){
+      uni.navigateTo({
+        url:'/pages/appoint/expressage'
+      })
     },
     submit(){
       
@@ -143,7 +161,22 @@ export default {
       //  _dateRange: "2020-3-30 09:00-09:30"
       //  timeStamp: 1585530000000
       // }
-    }
+    },
+    // 用户备注
+    getUserRemark(){
+      var _this = this
+      this.$http
+        .post(`/addons/microlife/remark/user`,{
+          type:this.optData.type
+        })
+        .then(response => {
+          const data = response.data
+          console.log('getUserRemark',data)
+          if (response.code === 1) {
+            this.userRemark = data
+          }
+        });
+    },
   }
 };
 </script>

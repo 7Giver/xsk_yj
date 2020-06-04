@@ -75,6 +75,7 @@
 <script>
 import mSearch from '@/components/rf-search/rf-search';
 import sModal from '../../components/s_modal.vue'
+import {mapState} from 'vuex';
 export default {
   components: {
     mSearch,
@@ -104,18 +105,45 @@ export default {
       page:1,
     };
   },
+  computed: {
+    ...mapState(['userInfo'])
+  },
   methods: {
     _toOtherPage(item){
-      if(item.title =='营家商城'){
+      if(!this.userInfo.nickname){
+        this.navTo()
+      }else{
+        let url = ''
+        switch(item.title){
+          case '营家商城':
+            url ='/pages/yj/index'
+          break;
+          case '领取优惠':
+            url ='/pages/index/coupon_list';
+          break;
+          case '预约服务':
+            url ='/pages/appoint/home'
+          break;
+        }
         uni.navigateTo({
-          url:'/pages/yj/index'
-        })
-      }else if(item.title =='领取优惠'){
-        uni.navigateTo({
-          url:'/pages/index/coupon_list'
+          url:url
         })
       }
     },
+    navTo(url){
+    	// if(!this.userInfo.nickname){
+        // #ifdef MP-WEIXIN
+        let urls = '/pages/login/login';
+        uni.navigateTo({
+          url: urls
+        }) 
+        // #endif
+        // #ifdef H5
+        this.$common.authH5()
+        // #endif
+        return
+    	// }
+    }, 
     _more(){
       uni.navigateTo({
         url:`/pages/index/list?cat_id=${this.TabCur}`
@@ -160,7 +188,6 @@ export default {
           if (response.code === 1) {
             this.loading = false
             this.productList = data
-            isproductListShow:true,
             this.productList[3].unshift({
               title:'全部',
               target:''

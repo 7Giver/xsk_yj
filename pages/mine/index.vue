@@ -122,13 +122,13 @@
           <text class="yticon icon-you"></text>
         </view>
       </view>
-      <view class="item-list" @click="_toOtherPage(item.url)" v-for="(item, index) in typeList1" :key="index">
+  <!--    <view class="item-list" @click="_toOtherPage(item.url)" v-for="(item, index) in typeList1" :key="index">
         <image class="icon-l" :src="item.src" mode=""></image>
         <view class="item-r">
           <text>{{ item.text }}</text>
           <text class="yticon icon-you"></text>
         </view>
-      </view>
+      </view> -->
     </view>
     <view style="height:10px"></view>
     <!-- #ifdef H5 -->

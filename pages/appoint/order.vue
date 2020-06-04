@@ -1,23 +1,24 @@
 <template>
   <view class="container">
-    <scroll-view scroll-y="true" v-if="goodsList.length>0" :style="{height:height}" lower-threshold=30  class="scroll-view" @scrolltolower="scrolltolower">
+    <scroll-view scroll-y="true" v-if="orderList.length>0" :style="{height:height}" lower-threshold=30  class="scroll-view" @scrolltolower="scrolltolower">
       <view class="order-section" >
-        <view v-for="(item, index) in goodsList" :key="index" class="order-item" @click="navToDetailPage(item)">
+        <view v-for="(item, index) in orderList" :key="index" class="order-item">
           <view class="order-t">
             <text class="type">快递</text>
-            <text class="state">已下单</text>
+            <text class="state">{{item.pay_status_tips}}</text>
           </view>
           <view class="order-b">
             <view class="inner">
               <text>取件地址 :</text>
               <view class="content">
-               小区北门风潮自提柜
+               {{item.pull_address_text.city}}
+               {{item.pull_address_text.address}}
               </view>
             </view>
             <view class="inner">
               <text>服务时间 :</text>
               <view class="content">
-               5月27日   12:36
+               {{item.service_start_time_text}}
               </view>
             </view>
           </view>
@@ -25,7 +26,7 @@
       </view>
       <uni-load-more v-if="loadmore" :status="loadingType"></uni-load-more>
     </scroll-view>
-    <empty setSrc="https://cdn.swh296.com/img/common/empty_content.png" v-if="isLoaded === true && goodsList.length==0">
+    <empty setSrc="https://cdn.swh296.com/img/common/empty_content.png" v-if="isLoaded === true && orderList.length==0">
       <view class="empty-text">
         暂无订单
       </view>
@@ -44,7 +45,7 @@ export default {
   data() {
     return {
       cateList: [],
-      goodsList: [],
+      orderList: [],
       loading: true,
       page: 1,
       limit: 10,
@@ -58,25 +59,20 @@ export default {
   created(options) {
     let windowHeight = uni.getSystemInfoSync().windowHeight-50;
     this.height = windowHeight + 'px';
-    this.getHomeRecommendProducts()
+    this.listUser()
   },
   methods: {
     scrolltolower(e){
       if(this.loadingType == 'noMore'){
         return false
       }else{
-        this.getHomeRecommendProducts()
+        this.listUser()
       }
     },
     //精品推荐
-    getHomeRecommendProducts() {
+    listUser() {
       this.$http
-        .post(`/addons/xshop/product/getHomeRecommendProducts`, {
-          page: this.page,
-          sort: this.sort,
-          order: this.order,
-          type:'all'
-        })
+        .post(`/addons/microlife/order/listUser`)
         .then(response => {
           const res = response.data;
           console.log('加载一次~')
@@ -97,7 +93,7 @@ export default {
                 this.loadmore = true
                 this.page ++
               }
-              this.goodsList = data
+              this.orderList = data
             }else {
               this.page ++
               if(data.length<this.limit){
@@ -105,19 +101,12 @@ export default {
               }else{
                 this.loadingType = 'more';
               }
-              this.goodsList = this.goodsList.concat(data)
+              this.orderList = this.orderList.concat(data)
               this.loadmore = true
             }
             this.isLoaded = true
           }
         });
-    },
-    //详情
-    navToDetailPage(item) {
-      let id = item.id;
-      uni.navigateTo({
-        url: `/pages/product/product?id=${id}`
-      });
     },
     stopPrevent() {}
   }
