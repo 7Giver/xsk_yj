@@ -52,11 +52,15 @@
 		},
     onLoad(options) {
       this.page =options.page || 'appoint-index'
-      console.log('onload',this.page,options,this.userInfo)
+      // console.log('onload',options,'appoint/home')
     },
     mounted(options) {
     	this.init_page_size();
-      console.log('mounted',this.userInfo)
+      // console.log(options)
+      // if(options.page){
+      //   this.page =options.page || 'appoint-index'
+      //   console.log('mounted','appoint/home')
+      // }
     },
 		methods: {
 			/**
@@ -81,25 +85,10 @@
 				// })  
 			}, 
 			changeTab(item) {
-        // this.navTo()
-        // console.log('item',item)
-        // if(!this.userInfo.nickname){
-        //   // #ifdef MP-WEIXIN
-        //   let url = '/pages/login/login'
-        //   uni.navigateTo({
-        //     url
-        //   }) 
-        //   // #endif
-        //   // #ifdef H5
-        //   this.$common.authH5()
-        //   // #endif
-        // }else{
-          console.log(item.title)
          uni.setNavigationBarTitle({
          	title:item.title
          })
          this.page = item.page;
-        // }
 			},
 			// 初始化内容区域的高度
 			async init_page_size() {
@@ -127,6 +116,9 @@
 </script>
 
 <style lang="less">
+  body,page,.container{
+    background-color: #F7F9FB !important;
+  }
 	.app-container {
 		min-height: 600upx;
 		// background-color: #FFFFFF;

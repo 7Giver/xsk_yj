@@ -111,6 +111,7 @@ export default {
       greens_id: '',
       greensList: [
       ],
+      green_value:'',
       isroleId:true
     };
   },
@@ -154,6 +155,7 @@ export default {
             _this.greensList = data.data
             if(data.data.length>0){
               _this.greens_id = _this.greensList[0].code
+              _this.green_value = _this.greensList[0].value
               _this.greensList.map(v=>{
                 v.value_text.map(s=>{
                   s.name = s.name + ' '
@@ -173,7 +175,8 @@ export default {
        // 备注类型:1=洗衣,2=代购,3=快递,4=代取件,5=寄存
       let optData ={
         type:this.navid,
-        value:this.textareaData
+        value:this.textareaData,
+        green_value:this.green_value
       }
       uni.navigateTo({
         url:`/pages/appoint/create_order?optData=${JSON.stringify(optData)}`
@@ -184,7 +187,8 @@ export default {
     },
     _changeGreen(item,index) {
       this.greens_id = item.code
-      console.log(item.value_text)
+      console.log(item.value)
+      this.green_value = item.value
       this.greensInfo = {
         id:index + 1,
         list:item.value_text
@@ -193,9 +197,9 @@ export default {
     _changeNav(item) {
       if(item.url && item.id !=1){
         // this.navid = item.id
-        let optData ={
+        let optData = {
           type:item.id,
-          user_remark:this.textareaData
+          value:this.textareaData
         }
         uni.navigateTo({
           url:item.url + `?optData=${JSON.stringify(optData)}`

@@ -5,14 +5,14 @@
       <view class="pick">
         <view class="article pic_bg">送</view>
         <view class="content">
-          <view class="textarea"><textarea value="" placeholder="请输入取件地址" /></view>
+          <view class="textarea"><textarea value="" placeholder="请输入送达地址" /></view>
         </view>
         <image class="icon_location" src="../../static/icon_location.png" mode=""></image>
       </view>
       <view class="receiver">
         <view class="article re_bg">存</view>
         <view class="content">
-          <view class="textarea"><textarea value="" v-model="receiveAddress" placeholder="请输入取件地址" /></view>
+          <view class="textarea"><textarea value="" v-model="receiveAddress" placeholder="请输入寄存地址" /></view>
         </view>
         <view class="right-sec" @click.stop="openAddres"><text class="yticon icon-you"></text></view>
       </view>
@@ -54,7 +54,7 @@
         </view>
       </view>
     </view>
-    <view class="aggrement-section">
+    <view class="aggrement-section" v-if="way_id==2">
       <checkbox-group class="block" @change="checkboxChange">
         <checkbox class="round red" style="transform:scale(0.6)" :class="checkbox.checked ? 'checked' : ''" :checked="checkbox.checked ? true : false" value="isRead"></checkbox>
       </checkbox-group>
@@ -129,10 +129,51 @@ export default {
       this.receiveAddress = labelArr.join('');
     },
     submit() {
-      if(!this.isChecked){
+      if(!this.isChecked && this.way_id == 2){
         this.$api.msg('请阅读并同意用户协议')
         return
       }
+      if(this.pickAddress == ''){
+        this.$api.msg('请输入送达地址~')
+        return
+      }
+      if(this.receiveAddress == ''){
+        this.$api.msg('请输入寄存地址~')
+        return
+      }
+      if(!this.sendTime){
+        this.$api.msg('请选择服务时间~')
+        return
+      }
+      this.addOrder()
+    },
+    addOrder(){
+      var _this = this
+      this.disabled = true
+      // type:备注类型:1=洗衣,3=快递,4=代取件
+      let service_details = JSON.stringify([{
+          fetch_method: this.way_id == 1 ? 'oneself' : 'delivery',
+        }])
+      this.$http
+        .post(`/addons/microlife/order/add`,{
+          type:this.optData.type,
+          user_remark:this.user_remark,
+          pull_address:this.pickAddress,
+          send_address:this.receiveAddress,
+          service_start_time:this.sendTime1,
+          service_details:service_details
+        })
+        .then(response => {
+          const data = response.data
+          if (response.code === 1) {
+              this.$api.msg('下单成功~')
+              setTimeout(()=>{
+                uni.navigateTo({
+                  url:`/pages/appoint/home?page=appoint-order`
+                })
+              },500)
+          }
+        });
     },
     _showMask() {
       this.isShow = !this.isShow;
@@ -144,28 +185,6 @@ export default {
       this.isShow = false;
       this.sendTime = data._dateRange;
       this.sendTime1 = data._date;
-      //data={
-      //  date: "2020/3/30 09:00"
-      //  _date: "2020-3-30 09:00"
-      //  dateRange: "2020/3/30 09:00-09:30"
-      //  _dateRange: "2020-3-30 09:00-09:30"
-      //  timeStamp: 1585530000000
-      // }
-    },
-    // 用户备注
-    getUserRemark() {
-      var _this = this;
-      this.$http
-        .post(`/addons/microlife/remark/user`, {
-          type: this.optData.type
-        })
-        .then(response => {
-          const data = response.data;
-          console.log('getUserRemark', data);
-          if (response.code === 1) {
-            this.userRemark = data;
-          }
-        });
     }
   }
 };

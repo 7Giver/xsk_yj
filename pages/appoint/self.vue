@@ -10,7 +10,7 @@
         </view>
     </view>
     <navigator url="./pay">
-      <view class="kt-section" v-if="!isroleId">
+      <view class="kt-section" v-if="isvipText">
         <button type="default" class="cu-btn">{{isvipText}}</button>
       </view>
     </navigator>
@@ -47,14 +47,15 @@ export default {
           text: '我的客服'
         }
       ],
-      isroleId:''
+      isroleId:true,
+      isvipText:''
     }
   },
   computed: {
     ...mapState(['userInfo', 'token']),
-    isvipText(){
-      return this.isroleId ? '续费':'立即开通'
-    }
+    // isvipText(){
+    //   return this.isroleId ? '续费':'立即开通'
+    // }
   },
   mounted() {
     console.log(this.userInfo.nickname)
@@ -75,6 +76,11 @@ export default {
           const data = response.data
           if (response.code === 1) {
             this.isroleId = (data && data.expiretime_text) ? true : false
+            if(data && data.expiretime_text){
+              this.isvipText = '续费'
+            }else{
+              this.isvipText = '立即开通'
+            }
           }
         });
     },
@@ -95,7 +101,7 @@ export default {
 <style lang="scss" scoped>
 @import 'mixin.scss';
 body,page,.container{
-  background-color: #F7F9FB;
+  background-color: #F7F9FB !important;
 }
 .kt-section{
   width:696rpx;

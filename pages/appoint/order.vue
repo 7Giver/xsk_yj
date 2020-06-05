@@ -11,8 +11,7 @@
             <view class="inner">
               <text>取件地址 :</text>
               <view class="content">
-               {{item.pull_address_text.city}}
-               {{item.pull_address_text.address}}
+               {{item.pull_address}}
               </view>
             </view>
             <view class="inner">
@@ -72,7 +71,9 @@ export default {
     //精品推荐
     listUser() {
       this.$http
-        .post(`/addons/microlife/order/listUser`)
+        .post(`/addons/microlife/order/listUser`,{
+          page:this.page
+        })
         .then(response => {
           const res = response.data;
           console.log('加载一次~')

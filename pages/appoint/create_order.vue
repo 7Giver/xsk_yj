@@ -60,7 +60,7 @@
       <view class="text-section">
         <view class="service-item">
           <text class="ser-l">取件码</text>
-          <view class="input-inner"><textarea value="" v-model="receiveCode" placeholder="如有多个快递，取件码请用“、”隔开, 注*邮寄快递无需填写取件码" /></view>
+          <view class="input-inner"><textarea value="" v-model.trim="receiveCode" placeholder="如有多个快递，取件码请用“、”隔开, 注*邮寄快递无需填写取件码" /></view>
         </view>
       </view>
       <view class="tb-list">
@@ -70,14 +70,18 @@
     </view>
     <view class="tb-list" v-else>
       <view class="service-item "><text class="ser-l">物品</text></view>
-      <view class="input-inner"><textarea value="" v-model="goods_msg" placeholder="请输入代取件的物品" /></view>
+      <view class="input-inner"><textarea value="" v-model="user_remark" placeholder="请输入代取件的物品" /></view>
     </view>
     <view class="price-section">
+      <view class="service-item" v-if="optData.type==2">
+        <text class="ser-l">商品总价</text>
+        <view class="ser-r"><text class="price-text">￥50</text></view>
+      </view>
       <view class="service-item ">
         <text class="ser-l">服务费</text>
         <view class="ser-r"><text class="price-text">￥5</text></view>
       </view>
-      <view class="service-item coupon">
+      <view class="service-item coupon" v-if="!couponDiscount.member">
         <text class="ser-l">优惠券</text>
         <view class="ser-r"><text class="coupon-text">{{couponDiscount.canuse_times}}张</text></view>
       </view>
@@ -135,7 +139,9 @@ export default {
        name:''
       },
       receiveCode:'', //取件码
-      couponDiscount:{}
+      couponDiscount:{
+        canuse_times:''
+      }
     }
   },
   computed:{
@@ -143,7 +149,11 @@ export default {
       return this.couponDiscount.canuse_times > 0 || this.couponDiscount.member ? true:false
     },
     order_price(){
-      return this.iscandiscount ? 0: 5
+      if(this.optData.type == 2){
+        return this.iscandiscount ? 0 : 50
+      }else{
+        return this.iscandiscount ? 0 : 5
+      }
     }
   },
   onLoad(options){
@@ -222,6 +232,12 @@ export default {
         this.$api.msg('请选择服务时间~')
         return
       }
+      if(this.optData.type==3){
+        if(!this.receiveCode && !this.expressage_data.name){
+          this.$api.msg('请选择快递或者填写取件码~')
+          return
+        }
+      }
       this.addOrder()
     },
     _showMask() {
@@ -257,7 +273,7 @@ export default {
           }
         });
     },
-   orderPay(){
+   orderPay(order){
      this.disabled = true
      var _this = this
      let method = ''
@@ -269,8 +285,7 @@ export default {
      // #endif
      this.$http
        .post(`/addons/microlife/order/pay`,{
-         quantity:this.quantity,
-         type:this.type,
+         out_trade_no:order,
          method:method
        })
        .then(response => {
@@ -279,8 +294,12 @@ export default {
         if (response.code == 1) {
           // #ifdef MP-WEIXIN
           requestPayment.call(this,data,function(res){
-            uni.navigateBack({
-            })
+              this.$api.msg('支付成功~')
+              setTimeout(()=>{
+                uni.navigateTo({
+                  url:`/pages/appoint/home?page='appoint-order'`
+                })
+              },800)
           })
           // #endif
           // #ifdef H5
@@ -289,6 +308,13 @@ export default {
             _this.disabled=false
             this.$jwx.wxpay(data,function(res){
                 console.log('res:H5支付',res)
+                this.$api.msg('支付成功~')
+                setTimeout(()=>{
+                  uni.navigateTo({
+                    url:`/pages/appoint/home?page='appoint-order'`
+                  })
+                },800)
+               
                 // alert(`JSON.stringify(${res})`)
             })
           }
@@ -322,6 +348,11 @@ export default {
           receive_code:this.receiveCode
         }])
       }
+      if(this.optData.type == 2){
+        service_details =JSON.stringify([{
+          value:this.optData.green_value
+        }])
+      }
       this.$http
         .post(`/addons/microlife/order/add`,{
           type:this.optData.type,
@@ -341,8 +372,10 @@ export default {
             }else{
               this.$api.msg('支付成功~')
               setTimeout(()=>{
-                uni.navigateBack()
-              })
+                uni.navigateTo({
+                  url:`/pages/appoint/home?page=appoint-order`
+                })
+              },500)
             }
           }
         });
