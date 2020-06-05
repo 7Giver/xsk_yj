@@ -352,6 +352,12 @@
       }
     },
     {
+      "path": "pages/appoint/express_order",
+      "style": {
+        "navigationBarTitleText": "服务下单"
+      }
+    },
+    {
       "path": "pages/appoint/success",
       "style": {
         "navigationBarTitleText": "服务下单",

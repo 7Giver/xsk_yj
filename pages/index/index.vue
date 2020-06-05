@@ -75,7 +75,7 @@
 <script>
 import mSearch from '@/components/rf-search/rf-search';
 import sModal from '../../components/s_modal.vue'
-import {mapState} from 'vuex';
+import {mapState,mapMutations} from 'vuex';
 export default {
   components: {
     mSearch,
@@ -108,7 +108,23 @@ export default {
   computed: {
     ...mapState(['userInfo'])
   },
+  mounted() {
+    // this.allType()
+    // uni.setTabBarBadge({
+    //   index: 2,
+    //   text: '1'
+    // })
+  },
+  onShow() {
+    this.allType()
+  },
+  onLoad() {
+    if(!this.userInfo.nickname){
+       this.setUserInfo(uni.getStorageSync('state_userInfo'))
+    }
+  },
   methods: {
+    ...mapMutations(['setUserInfo']),
     _toOtherPage(item){
       if(!this.userInfo.nickname){
         this.navTo()
@@ -116,7 +132,7 @@ export default {
         let url = ''
         switch(item.title){
           case '营家商城':
-            url ='/pages/yj/index'
+            url ='/pages/yj/index';
           break;
           case '领取优惠':
             url ='/pages/index/coupon_list';
@@ -186,6 +202,7 @@ export default {
         .then(response => {
           const data = response.data;
           if (response.code === 1) {
+            console.log('allType',this.loading)
             this.loading = false
             this.productList = data
             this.productList[3].unshift({
@@ -219,13 +236,6 @@ export default {
           }
         });
     },
-  },
-  mounted() {
-    this.allType()
-    // uni.setTabBarBadge({
-    //   index: 2,
-    //   text: '1'
-    // })
   }
 };
 </script>

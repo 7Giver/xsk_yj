@@ -173,28 +173,37 @@ export function chooseLocation(callback){
                 success(res){
                     if (res.confirm) {
                         //打开授权设置
-                        openSetting()
+                        openSetting(callback)
                     }
                 }
             })
         }
-        
-        
-        
     })
 }
 
 //打开授权设置（必须用户点击小程序才能打开授权设置，所以前面加了showModel）
-export function openSetting(){
+export function openSetting(callback){
     // 打开小程序的设置
     // #ifdef MP-WEIXIN
     uni.openSetting({
       success(res) {
         console.log(res.authSetting)
+        uni.getLocation({
+            type: 'wgs84',
+            success(res){
+                //定位权限开启，打开地图
+                uni.chooseLocation({
+                    success: function (res) {
+                        if(typeof callback =='function'){
+                          callback(res)
+                        }
+                    }
+                });
+            }
+        })
       }
     });
     // #endif
-    
     // App跳转系统的设置界面
     // #ifdef APP-PLUS
     uni.getSystemInfo({

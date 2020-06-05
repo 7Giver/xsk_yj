@@ -70,7 +70,7 @@
     </view>
     <view class="tb-list" v-else>
       <view class="service-item "><text class="ser-l">物品</text></view>
-      <view class="input-inner"><textarea value="" v-model="goods_msg" placeholder="请输入代取件的物品" /></view>
+      <view class="input-inner"><textarea value="" v-model="goodsMsg" placeholder="请输入代取件的物品" /></view>
     </view>
     <view class="price-section">
       <view class="service-item ">
@@ -129,7 +129,7 @@ export default {
       pickAddress:'',
       receiveAddress:'',
       user_remark:'',
-      goods_msg:'', //物品
+      goodsMsg:'', //物品
       canuse_times:'',
       expressage_data:{ //快递相关
        name:''
@@ -222,7 +222,6 @@ export default {
         this.$api.msg('请选择服务时间~')
         return
       }
-      this.addOrder()
     },
     _showMask() {
       this.isShow = !this.isShow;
@@ -283,15 +282,8 @@ export default {
      */
      addOrder(){
       var _this = this
-      // type:备注类型:1=洗衣,3=快递,4=代取件
-      let service_details = {}
-      if(this.optData.type == 3){ 
-        service_details = {
-          express:this.expressage_data.name,
-          receive_code:this.receiveCode
-        }
-      }else {
-      
+      let service_details = {
+        express:this.expressage_data.name
       }
       this.$http
         .post(`/addons/microlife/order/add`,{
@@ -302,7 +294,7 @@ export default {
           pull_address:this.pickAddress,
           send_address:this.receiveAddress,
           service_start_time:this.sendTime1,
-          service_details:service_details
+          service_details:''
         })
         .then(response => {
           const data = response.data

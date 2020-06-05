@@ -13,7 +13,6 @@
 </template>
 
 <script>
-  import {addCoupon} from '../../common/js/commonInfo.js';
   import {mapState} from 'vuex';
   export default{
     data(){
@@ -26,14 +25,15 @@
     computed: {
     },
     onLoad(options) {
-      this.category()
+      uni.showLoading({
+        title:'加载中...'
+      })
+      this.getexpressList()
     },
     methods:{
       check(item, index){
-        console.log(item)
-        console.log(this.list)
-        this.list.forEach(v=>{
-          if(item.id == v.id){
+        this.list.forEach((v,i)=>{
+          if(index == i){
             item.checked = !item.checked
           }else{
             v.checked = false
@@ -42,27 +42,24 @@
         this.update = false
         this.update = true
       },
-      category(){
+      getexpressList(){
         this.$http
-          .post(`/api/merchants/category/index`)
+          .post(`/addons/microlife/express/list`)
           .then(response => {
-            const data = response.data;
+            const resData = response.data
             if (response.code === 1) {
-              this.list = data
-              let list = this.list.map((v,i)=>{
-                return v.category
-              })
-              list.forEach((v)=>{
+              uni.hideLoading()
+              let data = resData.data
+              data.forEach((v)=>{
                 v.checked = false
               })
-              this.list =list
+              this.list = data
               console.log(this.list)
             }
           })
       },
       _confirm(){
         let data = this.list.filter(item=>item.checked)
-        console.log(this.list,data)
         let ids = []
         data.forEach((v,i)=>{
           ids.push(v.id)
@@ -71,10 +68,8 @@
           this.$api.msg('请选择商品')
           return
         }
-        let params = Object.assign(this.params,{
-          value:ids.join(',')
-        })
-        this.addCoupon(params)
+        this.$api.prePage().getExpressage(data)
+        uni.navigateBack({})
       },
     }
   }

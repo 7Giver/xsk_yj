@@ -17,7 +17,7 @@
       </view>
     </view>
     <!-- 买菜 -->
-    <view class="greens-section" v-if="navid == 3">
+    <view class="greens-section" v-if="navid == 2">
       <view class="greens-item" v-for="(item, index) in greensList" @click="_changeGreen(item,index)" :class="{ active: item.code == greens_id }" :key="index">
         <view class="meal">套餐{{ index + 1 }}</view>
         <view class="center">
@@ -30,8 +30,6 @@
       </view>
     </view>
     <button class="s-bg-linear" @click="_toOrder">去下单</button>
-    <button @click="_authLocaiton">去下单</button>
-    <!-- <button open-type="openSetting" @opensetting="_authLocaiton">去下单</button> -->
     <!-- 示例弹窗 -->
     <view class="draw_modal" v-if="isExampleModal" @click="isExampleModal = false"></view>
     <view class="example-modal" v-if="isExampleModal" @click.stop="isExampleModal = false">
@@ -65,7 +63,6 @@
 </template>
 
 <script>
-  import {authSettingLocation} from '../../common/js/commonInfo.js'
 export default {
   data() {
     return {
@@ -77,22 +74,24 @@ export default {
       },
       isgreensMore:false,
       textareaData: '',
+       // 备注类型:1=洗衣,2=代购,3=快递,4=代取件,5=寄存
       navList: [
         {
           image: 'https://cdn.swh296.com/img/appoint/icon_qyf.png',
           text: '取衣服',
-          id: 1
+          id: 1,
+          url:'/pages/appoint/create_order'
         },
         {
           image: 'https://cdn.swh296.com/img/appoint/icon_kuaidi.png',
           text: '快递',
-          id: 2,
+          id: 3,
           url:'/pages/appoint/create_order'
         },
         {
           image: 'https://cdn.swh296.com/img/appoint/icon_maicai.png',
           text: '买菜',
-          id: 3
+          id: 2
         },
         {
           image: 'https://cdn.swh296.com/img/appoint/icon_dqj.png',
@@ -138,7 +137,6 @@ export default {
         .post(`/addons/microlife/remark/general`)
         .then(response => {
           const data = response.data
-          console.log('general',data)
           if (response.code === 1) {
             this.exampleList = data
             this.isExampleModal = true
@@ -152,15 +150,16 @@ export default {
         .post(`/addons/microlife/package/list`)
         .then(response => {
           const data = response.data
-          console.log('getPackageList',data)
           if (response.code === 1) {
             _this.greensList = data.data
-            _this.greens_id = _this.greensList[0].code
-            _this.greensList.map(v=>{
-              v.value_text.map(s=>{
-                s.name = s.name + ' '
+            if(data.data.length>0){
+              _this.greens_id = _this.greensList[0].code
+              _this.greensList.map(v=>{
+                v.value_text.map(s=>{
+                  s.name = s.name + ' '
+                })
               })
-            })
+            }
           }
         });
     },
@@ -171,16 +170,7 @@ export default {
       this.general()
     },
     _toOrder(){
-      // 类型:1=洗衣,2=购物,3=寄快递,4=取快递,5=寄存
-      // 取送衣
-      
-      // 快递
-      
-      // 买菜
-      
-      // 代取件
-      
-      // 寄存物品
+       // 备注类型:1=洗衣,2=代购,3=快递,4=代取件,5=寄存
       let optData ={
         type:this.navid,
         value:this.textareaData
@@ -188,51 +178,6 @@ export default {
       uni.navigateTo({
         url:`/pages/appoint/create_order?optData=${JSON.stringify(optData)}`
       })
-    },
-    _authLocaiton(e){
-      console.log(e)
-      // let detail = e.detail.authSetting
-      uni.chooseLocation({
-          success: function (res) {
-              console.log('位置名称：' + res.name);
-          }
-      })
-      // uni.openSetting({
-      //   success(res) {
-      //     console.log(res.authSetting)
-      //   }
-      // });
-      // if(detail['scope.userLocation']){
-      //   uni.chooseLocation({
-      //       success: function (res) {
-      //           console.log('位置名称：' + res.name);
-      //       }
-      //   });
-        
-        // uni.getLocation({
-        //     type: 'wgs84',
-        //     success: function (res) {
-        //         uni.chooseLocation({
-        //             success: function (res) {
-        //                 if(typeof callback =='function'){
-        //                   callback(res)
-        //                 }
-        //             }
-        //         });
-        //     },fail(err) {
-        //       console.warn('err',err)
-        //       if(typeof callback =='function'){
-        //         callback(err)
-        //       }
-        //     }
-        // });
-      // }
-      // authSettingLocation(function(res){
-      //   console.log('_authLocaiton',res)
-      //   if(res.errMsg=='getLocation:fail auth deny'){
-          
-      //   }
-      // })
     },
     _more(item) {
       this.isgreensMore = true;
@@ -246,15 +191,17 @@ export default {
       }
     },
     _changeNav(item) {
-      this.navid = item.id
-      if(item.url){
+      if(item.url && item.id !=1){
+        // this.navid = item.id
         let optData ={
-          type:this.navid,
-          value:this.textareaData
+          type:item.id,
+          user_remark:this.textareaData
         }
         uni.navigateTo({
           url:item.url + `?optData=${JSON.stringify(optData)}`
         })
+      }else{
+        this.navid = item.id
       }
     },
     _copy(item) {

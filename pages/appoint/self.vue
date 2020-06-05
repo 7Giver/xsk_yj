@@ -11,7 +11,7 @@
     </view>
     <navigator url="./pay">
       <view class="kt-section" v-if="!isroleId">
-        <button type="default" class="cu-btn">立即开通</button>
+        <button type="default" class="cu-btn">{{isvipText}}</button>
       </view>
     </navigator>
     <view class="info-section">
@@ -35,7 +35,7 @@ export default {
         {
           src: 'https://cdn.swh296.com/img/appoint/mine_icon_yh.png',
           text: '我的优惠',
-          url: '/pages/yj/index'
+          url: '/pages/index/coupon_list'
         },
         {
           src: 'https://cdn.swh296.com/img/appoint/mine_icon_address.png',
@@ -44,15 +44,17 @@ export default {
         },
         {
           src: 'https://cdn.swh296.com/img/appoint/mine_icon_kf.png',
-          text: '我的客服',
-          url: '/pages/yj/index'
+          text: '我的客服'
         }
       ],
-      isroleId:true
+      isroleId:''
     }
   },
   computed: {
-    ...mapState(['userInfo', 'token'])
+    ...mapState(['userInfo', 'token']),
+    isvipText(){
+      return this.isroleId ? '续费':'立即开通'
+    }
   },
   mounted() {
     console.log(this.userInfo.nickname)
@@ -72,15 +74,19 @@ export default {
         .then(response => {
           const data = response.data
           if (response.code === 1) {
-            this.isroleId =data  &&  data.expiretime_text ? true : false
+            this.isroleId = (data && data.expiretime_text) ? true : false
           }
         });
     },
     _toOtherPage(item) {
       let url = item.url
+      if(url){
       uni.navigateTo({
         url:url
       })
+      }else{
+        this.$api.msg('开发中~')
+      }
     }
   }
 };

@@ -166,48 +166,26 @@
     }
   }
 </script>
-<style lang="scss">
-  @import 'mixin.scss';
-  /deep/.uni-numbox{
-    width: auto;
-    margin-left: 25rpx;
-    position: relative;
-    border: none;
-    /deep/.uni-numbox-minus,/deep/.uni-numbox-plus{
-      width: 32rpx;
-      height: 32rpx;
-      border: none !important;
-      background-color: #ECCA9D;
-      border-radius: 50%;
-      @include flexY;
-      @include flexJ;
-      .yticon{
-        color: #fff;
-        font-size: 20rpx;
-      }
-    }
-  }
-</style>
 <style lang="scss" scoped>
   @import 'mixin.scss';
+  /deep/.uni-numbox-minus,/deep/.uni-numbox-plus{
+    width: 32rpx;
+    height: 32rpx;
+    border: none !important;
+    background-color: #ECCA9D;
+    border-radius: 50%;
+    @include flexY;
+    @include flexJ;
+    .yticon{
+      color: #fff;
+      font-size: 20rpx;
+    }
+  }
   /deep/.uni-numbox{
     width: auto;
     margin-left: 25rpx;
     position: relative;
     border: none;
-    /deep/.uni-numbox-minus,/deep/.uni-numbox-plus{
-      width: 32rpx;
-      height: 32rpx;
-      border: none !important;
-      background-color: #ECCA9D;
-      border-radius: 50%;
-      @include flexY;
-      @include flexJ;
-      .yticon{
-        color: #fff;
-        font-size: 20rpx;
-      }
-    }
   }
   page,.container{
     background:linear-gradient(0deg,rgba(253,239,227,1),#FDF1E6);
@@ -236,27 +214,8 @@
         &.active{
           border:2rpx solid rgba(242, 172, 128, 1);
           background:#F2AC80;
-          .uni-numbox{
+          /deep/.uni-numbox{
             background:#F2AC80;
-          }
-        }
-        /deep/.uni-numbox{
-          width: auto;
-          margin-left: 25rpx;
-          position: relative;
-          border: none;
-          /deep/.uni-numbox-minus,/deep/.uni-numbox-plus{
-            width: 32rpx;
-            height: 32rpx;
-            border: none !important;
-            background-color: #ECCA9D;
-            border-radius: 50%;
-            @include flexY;
-            @include flexJ;
-            .yticon{
-              color: #fff;
-              font-size: 20rpx;
-            }
           }
         }
         .item-r{
