@@ -86,69 +86,33 @@ export const authSetting = function({
     })
   })
 }
-// 获取地址
-export const authSettingLocation = function(callback) {
-  return new Promise((resolve, reject) => {
-    uni.getLocation({
-        type: 'wgs84',
-        success: function (res) {
-            uni.chooseLocation({
-                success: function (res) {
-                    if(typeof callback =='function'){
-                      callback(res)
-                    }
-                }
-            });
-        },fail(err) {
-          console.warn('err',err)
-          if(typeof callback =='function'){
-            callback(err)
-          }
-        }
-    });
-    // uni.getSetting({
-    //   success(res) {
-    //     console.log('uni.getSetting',res)
-    //     if (res.authSetting['scope.userLocation']) {
-    //       uni.chooseLocation({
-    //           success: function (res) {
-    //               // console.log('位置名称：' + res.name);
-    //               // console.log('详细地址：' + res.address);
-    //               // console.log('纬度：' + res.latitude);
-    //               // console.log('经度：' + res.longitude);
-    //               if(typeof callback =='function'){
-    //                 callback(res)
-    //               }
-    //           }
-    //       });
-    //     }else{
-    //       uni.authorize({
-    //           scope: 'scope.userLocation',
-    //           success() {
-    //               uni.getLocation({
-    //                   type: 'wgs84',
-    //                   success: function (res) {
-    //                       uni.chooseLocation({
-    //                           success: function (res) {
-    //                               // console.log('位置名称：' + res.name);
-    //                               // console.log('详细地址：' + res.address);
-    //                               // console.log('纬度：' + res.latitude);
-    //                               // console.log('经度：' + res.longitude);
-    //                               if(typeof callback =='function'){
-    //                                 callback(res)
-    //                               }
-    //                           }
-    //                       });
-                    
-    //                   }
-    //               });
-    //           }
-    //       })
-    //     }
-    //   }
-    // })
-  })
-}
+export function requestPayment(paymentData,callback){
+     uni.requestPayment({
+         timeStamp: paymentData.timeStamp,
+         nonceStr: paymentData.nonceStr,
+         package: paymentData.package,
+         signType: 'MD5',
+         paySign: paymentData.paySign,
+         success: (res) => {
+            typeof callback =='function' && callback(res)
+            this.$api.msg('支付成功')
+            this.disabled=false
+            this.loading=false
+         },
+         fail: (res) => {
+           this.disabled=false
+           this.loading=false
+           // 原因为: " + res.errMsg
+             uni.showModal({
+                 content: "支付失败",
+                 showCancel: false
+             })
+         },
+         complete: () => {
+             this.loading = false;
+         }
+     })
+   }
 //打开地图
 export function chooseLocation(callback){
     // 先判断定位权限是否开启

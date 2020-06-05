@@ -58,6 +58,7 @@
   const yearPrice = 300
   const timePrice = 5
   import uniNumberBox from '@/components/uni-number-box.vue';
+  import {requestPayment} from '../../common/js/commonInfo.js'
   export default {
     data(){
       return {
@@ -96,7 +97,11 @@
             const data = response.data
            if (response.code == 1) {
              // #ifdef MP-WEIXIN
-             this.requestPayment(data)
+             requestPayment.call(this,data,function(res){
+               console.log('res',res)
+               uni.navigateBack({
+               })
+             })
              // #endif
              // #ifdef H5
              if (this.$jwx && this.$jwx.isWechat()) {
@@ -114,36 +119,6 @@
            }
           });
       },
-      requestPayment(paymentData){
-        uni.requestPayment({
-            timeStamp: paymentData.timeStamp,
-            nonceStr: paymentData.nonceStr,
-            package: paymentData.package,
-            signType: 'MD5',
-            paySign: paymentData.paySign,
-            success: (res) => {
-               this.$api.msg('支付成功')
-               this.disabled=false
-               this.loading=false
-               uni.switchTab({
-                  url:'/pages/mine/index'
-               })
-            },
-            fail: (res) => {
-              this.disabled=false
-              this.loading=false
-              // 原因为: " + res.errMsg
-                uni.showModal({
-                    content: "支付失败",
-                    showCancel: false
-                })
-            },
-            complete: () => {
-                this.loading = false;
-             
-            }
-        })
-      }, 
       numberChange(data) {
         this.quantity = data.number || 1
         this.order_price = this.time_price =  data.number * 5

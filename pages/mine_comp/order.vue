@@ -86,6 +86,7 @@ import uniLoadMore from '@/components/uni-load-more/uni-load-more.vue';
 import empty from '@/components/empty';
 import Json from '@/Json';
 import {mapState,mapMutations} from 'vuex';
+import {requestPayment} from '../../common/js/commonInfo.js'
 export default {
   components: {
     uniLoadMore,
@@ -251,42 +252,29 @@ export default {
           const data = response.data;
           console.log('data', data);
           if (response.code == 1) {
-            this.requestPayment(data)
+            // this.requestPayment(data)
+            // #ifdef MP-WEIXIN
+            requestPayment.call(this,data,function(res){
+              console.log('res',res)
+               uni.switchTab({
+                  url:'/pages/mine/index'
+               })
+            })
+            // #endif
+            // #ifdef H5
+            if (this.$jwx && this.$jwx.isWechat()) {
+              console.log('this.$jwx--data:',data)
+              _this.disabled=false
+              this.$jwx.wxpay(data,function(res){
+                  console.log('res:H5支付',res)
+              })
+            }
+            // #endif
           }else{
              this.$api.msg(response.msg)
           }
         })
     },
-    requestPayment(paymentData){
-      uni.requestPayment({
-          timeStamp: paymentData.timeStamp,
-          nonceStr: paymentData.nonceStr,
-          package: paymentData.package,
-          signType: 'MD5',
-          paySign: paymentData.paySign,
-          success: (res) => {
-             this.$api.msg('支付成功')
-             this.disabled=false
-             this.loading=false
-             uni.switchTab({
-                url:'/pages/mine/index'
-             })
-          },
-          fail: (res) => {
-            this.disabled=false
-            this.loading=false
-            // 原因为: " + res.errMsg
-              uni.showModal({
-                  content: "支付失败",
-                  showCancel: false
-              })
-          },
-          complete: () => {
-              this.loading = false;
-           
-          }
-      })
-    }, 
     _toSelfOrderDetail(item){
       uni.navigateTo({
         url:`/pages/store_manage_comp/order_detail?id=${item.id}`

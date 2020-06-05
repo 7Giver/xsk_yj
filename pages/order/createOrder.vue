@@ -141,6 +141,7 @@
 import hTimeAlert from "@/components/h-time-alert/h-time-alert.vue";
 import tuiModal from "@/components/ThorUI/modal/modal"
 import { mapState } from 'vuex';
+import {requestPayment} from '../../common/js/commonInfo.js'
 export default {
   components: {hTimeAlert},
   data() {
@@ -360,7 +361,11 @@ export default {
           console.log('data', data);
           if (response.code == 1) {
             // #ifdef MP-WEIXIN
-            this.requestPayment(data)
+            requestPayment.call(this,data,function(res){
+               uni.switchTab({
+                  url:'/pages/mine/index'
+               })
+            })
             // #endif
             // #ifdef H5
             if (this.$jwx && this.$jwx.isWechat()) {
@@ -377,36 +382,6 @@ export default {
              this.$api.msg(response.msg)
           }
         })
-    },
-    requestPayment(paymentData){
-      uni.requestPayment({
-          timeStamp: paymentData.timeStamp,
-          nonceStr: paymentData.nonceStr,
-          package: paymentData.package,
-          signType: 'MD5',
-          paySign: paymentData.paySign,
-          success: (res) => {
-             this.$api.msg('支付成功')
-             this.disabled=false
-             this.loading=false
-             uni.switchTab({
-                url:'/pages/mine/index'
-             })
-          },
-          fail: (res) => {
-            this.disabled=false
-            this.loading=false
-            // 原因为: " + res.errMsg
-              uni.showModal({
-                  content: "支付失败",
-                  showCancel: false
-              })
-          },
-          complete: () => {
-              this.loading = false;
-
-          }
-      })
     },
     _chooseCoupon(item){
       this.coupon_id = item.id

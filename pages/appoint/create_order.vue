@@ -106,7 +106,7 @@
 <script>
 import simpleAddress from '@/components/simple-address/simple-address.vue'
 import hTimeAlert from '@/components/h-time-alert/h-time-alert.vue';
-import {chooseLocation} from '../../common/js/commonInfo.js'
+import {chooseLocation,requestPayment} from '../../common/js/commonInfo.js'
 export default {
   components: { hTimeAlert,simpleAddress },
   data() {
@@ -257,6 +257,48 @@ export default {
           }
         });
     },
+   orderPay(){
+     this.disabled = true
+     var _this = this
+     let method = ''
+     // #ifdef H5
+     method = 'mp'
+     // #endif
+     // #ifdef MP-WEIXIN
+     method = 'miniapp'
+     // #endif
+     this.$http
+       .post(`/addons/microlife/order/pay`,{
+         quantity:this.quantity,
+         type:this.type,
+         method:method
+       })
+       .then(response => {
+         this.disabled = false
+         const data = response.data
+        if (response.code == 1) {
+          // #ifdef MP-WEIXIN
+          requestPayment.call(this,data,function(res){
+            uni.navigateBack({
+            })
+          })
+          // #endif
+          // #ifdef H5
+          if (this.$jwx && this.$jwx.isWechat()) {
+            console.log('this.$jwx--data:',data)
+            _this.disabled=false
+            this.$jwx.wxpay(data,function(res){
+                console.log('res:H5支付',res)
+                // alert(`JSON.stringify(${res})`)
+            })
+          }
+          // #endif
+        }else{
+          this.disabled=false
+           this.$api.msg(response.msg)
+        }
+       });
+   },
     // 可用优惠券数量
     canDiscount(){
       var _this = this
@@ -269,29 +311,16 @@ export default {
           }
         })
     },
-    /**
-     *
-     * token:
-      type:备注类型:1=洗衣,2=代购,3=快递,4=代取件,5=寄存
-      user_remark:用户备注
-      pull_lng:取件地址 经度
-      pull_lat:取件地址 纬度
-      pull_address:取件地址 json_encode
-      send_address:送件地址 json_encode
-      service_start_time:服务开始时间
-      service_details:服务详情  json_encode
-     */
      addOrder(){
       var _this = this
+      this.disabled = true
       // type:备注类型:1=洗衣,3=快递,4=代取件
-      let service_details = {}
+      let service_details = ''
       if(this.optData.type == 3){ 
-        service_details = {
+        service_details =JSON.stringify([{
           express:this.expressage_data.name,
           receive_code:this.receiveCode
-        }
-      }else {
-      
+        }])
       }
       this.$http
         .post(`/addons/microlife/order/add`,{
@@ -307,6 +336,14 @@ export default {
         .then(response => {
           const data = response.data
           if (response.code === 1) {
+            if(data.pay_status == 0){
+              this.orderPay(data.out_trade_no)
+            }else{
+              this.$api.msg('支付成功~')
+              setTimeout(()=>{
+                uni.navigateBack()
+              })
+            }
           }
         });
     }

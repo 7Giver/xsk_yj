@@ -24,6 +24,7 @@
 
 <script>
   import {mapState} from 'vuex';
+  import {requestPayment} from '../../common/js/commonInfo.js'
   export default{
     data() {
       return {
@@ -83,42 +84,17 @@
           const data = response.data;
           console.log('data', data);
           if (response.code == 1) {
-            this.requestPayment(data)
+            requestPayment.call(this,data,function(res){
+              uni.switchTab({
+                 url:'/pages/mine/index'
+              })
+            })
           }else{
             this.$api.msg(response.msg)
           }
         })
-    },
-      requestPayment(paymentData){
-        uni.requestPayment({
-            timeStamp: paymentData.timeStamp,
-            nonceStr: paymentData.nonceStr,
-            package: paymentData.package,
-            signType: 'MD5',
-            paySign: paymentData.paySign,
-            success: (res) => {
-              this.disabled =false
-              this.loading =false
-              this.$api.msg('支付成功')
-              uni.switchTab({
-                 url:'/pages/mine/index'
-              })
-            },
-            fail: (res) => {
-              this.disabled =false
-              this.loading =false
-                uni.showModal({
-                    content: "支付失败,原因为: " + res
-                        .errMsg,
-                    showCancel: false
-                })
-            },
-            complete: () => {
-                this.loading = false;
-            }
-        })
-      },
-    },
+    }
+    }
   }
 </script>
 
