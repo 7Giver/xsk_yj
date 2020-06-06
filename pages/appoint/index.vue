@@ -70,8 +70,10 @@ export default {
       exampleList:[],
       greensInfo:{
         id:'',
+        code:'',
         list:[
-        ]
+        ],
+        price:''
       },
       isgreensMore:false,
       textareaData: '',
@@ -164,7 +166,9 @@ export default {
               _this.green_value_text = _this.greensList[0].value_text
               _this.greensInfo = {
                 id:1,
-                list:_this.greensList[0].value_text
+                list:_this.greensList[0].value_text,
+                price: _this.greensList[0].price,
+                code: _this.greensList[0].code
               }
               _this.greensList.map(v=>{
                 v.value_text.map(s=>{
@@ -209,7 +213,9 @@ export default {
       this.green_value_text = item.value_text
       this.greensInfo = {
         id:index + 1,
-        list:item.value_text
+        list:item.value_text,
+        price:item.price,
+        code:item.code
       }
     },
     _changeNav(item) {

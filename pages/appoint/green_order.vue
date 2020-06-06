@@ -27,7 +27,7 @@
         <view class="price">
           <view class="item-r">
             <view class="day">
-              <text class="price">50元</text>
+              <text class="price">{{greensInfo.price}}元</text>
             </view>
               <!-- :isMax="sitem.quantity >= sitem.sku.stock ? true : false" -->
               <!-- :max="sitem.sku.stock" -->
@@ -76,7 +76,7 @@
     <view class="price-section">
       <view class="service-item">
         <text class="ser-l">商品总价</text>
-        <view class="ser-r"><text class="price-text">￥50</text></view>
+        <view class="ser-r"><text class="price-text">￥{{greensInfo.price}}</text></view>
       </view>
       <view class="service-item coupon">
         <text class="ser-l">服务费</text>
@@ -113,7 +113,6 @@
 import hTimeAlert from '@/components/h-time-alert/h-time-alert.vue';
 import {chooseLocation,requestPayment} from '../../common/js/commonInfo.js'
 import uniNumberBox from '@/components/uni-number-box.vue';
-const timePrice = 50
 export default {
   components: { 
     hTimeAlert,
@@ -147,17 +146,13 @@ export default {
       meal_quality:1,
       productId:0,
       greensInfo:{},
-      time_price:timePrice,
       order_price:''
     }
   },
   computed:{
     iscandiscount(){
       return this.couponDiscount.canuse_times > 0 || this.couponDiscount.member ? true:false
-    },
-    // order_price(){
-    //   return this.iscandiscount ? 50 : 55
-    // }
+    }
   },
   onLoad(options){
     this.optData =JSON.parse(options.optData)
@@ -170,9 +165,9 @@ export default {
     numberChange(data) {
       this.quantity = data.number || 1
       if(this.iscandiscount){
-        this.order_price = this.time_price =  data.number * 50
+        this.order_price = this.time_price =  data.number * this.greensInfo.price
       }else{
-        this.order_price = this.time_price =  data.number * 50 + 5
+        this.order_price = this.time_price =  data.number * this.greensInfo.price + 5
       }
     },
     _authReceiveLocaiton(e){
@@ -303,9 +298,9 @@ export default {
           if (response.code === 1) {
             this.couponDiscount = data
             if(data.canuse_times > 0 || this.couponDiscount.member){
-               this.order_price =   50 
+               this.order_price =   this.greensInfo.price
             }else{
-              this.order_price =   55
+              this.order_price =  Number(this.greensInfo.price) + 5
             }
           }
         })
@@ -321,6 +316,7 @@ export default {
       this.$http
         .post(`/addons/microlife/order/add`,{
           type:this.optData.type,
+          code:this.greensInfo.code,
           quantity:this.quantity,
           user_remark:this.user_remark,
           pull_lng:this.pickTude.longitude,
