@@ -18,10 +18,28 @@
   export default {
     data(){
       return {
-        ewm:'https://cdn.swh296.com/img/appoint/appoint_text_modal.png'
+        ewm:'',
+        id:''
       }
     },
+    onLoad(options) {
+      this.id = options.id
+      this.getMemStatus()
+    },
     methods: {
+      getMemStatus(){
+        var _this = this
+        this.$http
+          .post(`/addons/microlife/order/serviceQrcode`,{
+            id:this.id
+          })
+          .then(response => {
+            const data = response.data
+            if (response.code === 1) {
+              this.ewm = data.qrcode_image_text
+            }
+          });
+      },
      _preiview(){
        let urls = []
        urls.push(this.ewm)

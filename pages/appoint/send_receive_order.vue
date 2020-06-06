@@ -5,16 +5,26 @@
       <view class="pick">
         <view class="article pic_bg">送</view>
         <view class="content">
-          <view class="textarea"><textarea value="" placeholder="请输入送达地址" /></view>
+          <view class="textarea"><textarea value="" v-model="pickAddress" placeholder="请输入送达地址" /></view>
         </view>
-        <image class="icon_location" src="../../static/icon_location.png" mode=""></image>
+       <view class="right-arrow"  @click.stop="openAddres('appoint_pick')">
+         <text class="yticon icon-you"></text>
+       </view>
+       <view class="right-location"  @click.stop="_authPickLocaiton" >
+         <image class="icon_location" src="../../static/icon_location.png" mode=""></image>
+       </view>
       </view>
       <view class="receiver">
         <view class="article re_bg">存</view>
         <view class="content">
           <view class="textarea"><textarea value="" v-model="receiveAddress" placeholder="请输入寄存地址" /></view>
         </view>
-        <view class="right-sec" @click.stop="openAddres"><text class="yticon icon-you"></text></view>
+        <view class="right-arrow"  @click.stop="openAddres('appoint_receive')">
+          <text class="yticon icon-you"></text>
+        </view>
+        <view class="right-location"  @click.stop="_authReceiveLocaiton" >
+          <image class="icon_location" src="../../static/icon_location.png" mode=""></image>
+        </view>
       </view>
     </view>
     <view class="service-item time" @click.stop="_showMask">
@@ -54,7 +64,7 @@
         </view>
       </view>
     </view>
-    <view class="aggrement-section" v-if="way_id==2">
+    <view class="aggrement-section" v-if="way_id==3">
       <checkbox-group class="block" @change="checkboxChange">
         <checkbox class="round red" style="transform:scale(0.6)" :class="checkbox.checked ? 'checked' : ''" :checked="checkbox.checked ? true : false" value="isRead"></checkbox>
       </checkbox-group>
@@ -68,15 +78,16 @@
       <!-- <text class="submit" @click="submit">提交订单</text> -->
       <button class="cu-btn submit" :disabled="disabled" @click="submit">提交订单</button>
     </view>
-    <simple-address ref="simpleAddress" :pickerValueDefault="cityPickerValueDefault" @onConfirm="onConfirm" themeColor="#007AFF"></simple-address>
+    <!-- <simple-address ref="simpleAddress" :pickerValueDefault="cityPickerValueDefault" @onConfirm="onConfirm" themeColor="#007AFF"></simple-address> -->
   </view>
 </template>
 
 <script>
-import simpleAddress from '@/components/simple-address/simple-address.vue';
+// import simpleAddress from '@/components/simple-address/simple-address.vue';
 import hTimeAlert from '@/components/h-time-alert/h-time-alert.vue';
+import {chooseLocation} from '../../common/js/commonInfo.js'
 export default {
-  components: { hTimeAlert, simpleAddress },
+  components: { hTimeAlert },
   data() {
     return {
       optData: {},
@@ -90,6 +101,7 @@ export default {
       order_price: 100,
       disabled: false,
       cityPickerValueDefault: [0, 0, 1],
+      pickAddress:'',
       receiveAddress: '',
       goodsMsg: '',
       way_id:2,
@@ -111,6 +123,52 @@ export default {
         url:'/pages/aggrement/aggrement'
       })
     },
+   _authPickLocaiton(e){
+     var _this = this
+     // #ifdef MP-WEIXIN
+     chooseLocation(function(res){
+       console.log('res',res)
+       _this.pickAddress = res.name
+       _this.pickTude ={
+         longitude:res.longitude,
+         latitude:res.latitude
+       }
+       })
+     // #endif
+     // #ifdef H5
+       _this.$jwx.getlocation(function(response){
+         console.log('response',response)
+         // #ifdef H5
+         uni.chooseLocation({
+             success: function (res) {
+              _this.pickAddress = res.name
+             }
+         })
+         // #endif
+       })
+     // #endif
+   },
+   _authReceiveLocaiton(e){
+     var _this = this
+     // #ifdef MP-WEIXIN
+     chooseLocation(function(res){
+       console.log('res',res)
+       _this.receiveAddress = res.name
+       })
+     // #endif
+     // #ifdef H5
+       _this.$jwx.getlocation(function(response){
+         console.log('response',response)
+         // #ifdef H5
+         uni.chooseLocation({
+             success: function (res) {
+              _this.receiveAddress = res.name
+             }
+         })
+         // #endif
+       })
+     // #endif
+   },
     checkboxChange(e) {
       var items = this.checkbox,
         values = e.detail.value;
@@ -120,19 +178,26 @@ export default {
     _changeWay(id){
       this.way_id = id
     },
-    openAddres() {
-      this.cityPickerValueDefault = [0, 0, 0];
-      this.$refs.simpleAddress.open();
+    openAddres(data) {
+      uni.navigateTo({
+        url:`/pages/address/address?source=${data}`
+      })
+      // this.cityPickerValueDefault = [0, 0, 0];
+      // this.$refs.simpleAddress.open();
     },
     onConfirm(e) {
       let labelArr = e.labelArr;
       this.receiveAddress = labelArr.join('');
     },
     submit() {
-      if(!this.isChecked && this.way_id == 2){
-        this.$api.msg('请阅读并同意用户协议')
+      if(this.way_id == 2){
+        this.$api.msg('暂不支持送货上门~')
         return
       }
+      // if(!this.isChecked && this.way_id == 2){
+      //   this.$api.msg('请阅读并同意用户协议')
+      //   return
+      // }
       if(this.pickAddress == ''){
         this.$api.msg('请输入送达地址~')
         return
@@ -164,12 +229,13 @@ export default {
           service_details:service_details
         })
         .then(response => {
+          this.disabled = false
           const data = response.data
           if (response.code === 1) {
               this.$api.msg('下单成功~')
               setTimeout(()=>{
-                uni.navigateTo({
-                  url:`/pages/appoint/home?page=appoint-order`
+                uni.redirectTo({
+                  url:`/pages/appoint/success?id=${data.id}`
                 })
               },500)
           }
@@ -211,7 +277,7 @@ page,
   justify-content: flex-end;
 }
 .address-section {
-  padding: 0 30rpx 30rpx;
+  padding: 0 30rpx 0rpx;
   border-radius: 6rpx;
   background-color: #fff;
   margin-bottom: 20rpx;
@@ -221,8 +287,10 @@ page,
   }
   .receiver,
   .pick {
-    @include flexX;
-    @include flexA;
+    padding-top: 20rpx;
+    display: flex;
+    // @include flexX;
+    // @include flexA;
     font-size: 32rpx;
     color: #131a31;
     .article {
@@ -243,32 +311,33 @@ page,
   }
   .content {
     flex: 1;
-    margin: 0 50rpx 0 40rpx;
+    margin: -10rpx 20rpx 0 40rpx;
     .textarea {
       width: 100%;
       textarea {
         width: 90%;
         font-size: 24rpx;
         height: 110rpx;
-        padding: 20rpx 0;
+        // padding: 20rpx 0;
       }
     }
   }
-  .right-sec {
+  .right-arrow{
     width: 50rpx;
     height: 50rpx;
-    // display: flex;
-    // flex-direction: column;
-    // justify-content: center;
-    margin-top: 12rpx;
-    text {
-      float: right;
-    }
-    // justify-content: flex-end;
+    margin-right: 20rpx;
+    @include flexY;
+    @include flexA;
   }
-  .icon_location {
-    width: 24rpx;
-    height: 32rpx;
+  .right-location{
+    width:  50rpx;
+    height: 50rpx;
+    @include flexY;
+    @include flexA;
+    .icon_location{
+      width: 24rpx;
+      height: 32rpx;
+    }
   }
 }
 .tb-list {

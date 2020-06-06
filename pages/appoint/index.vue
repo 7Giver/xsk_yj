@@ -9,7 +9,7 @@
     </view>
     <!-- 取衣服 -->
     <view class="textarea-section" v-if="navid == 1">
-      <textarea value="" class="textarea" v-model="textareaData" placeholder="您可以填写服务详细信息，跑腿小哥为您 服务！" />
+      <textarea value="" class="textarea" v-model="textareaData" :placeholder="placeholder" />
       <view class="example-inner" @click="_moreExample">
         <text>点击可快捷输入</text>
         <text class="active">查看填写示例</text>
@@ -63,6 +63,7 @@
 </template>
 
 <script>
+const placeholder ='您可以填写服务详细信息，跑腿小哥为您 服务！'
 export default {
   data() {
     return {
@@ -79,8 +80,8 @@ export default {
         {
           image: 'https://cdn.swh296.com/img/appoint/icon_qyf.png',
           text: '取衣服',
-          id: 1,
-          url:'/pages/appoint/create_order'
+          id: 1
+          // url:'/pages/appoint/create_order'
         },
         {
           image: 'https://cdn.swh296.com/img/appoint/icon_kuaidi.png',
@@ -92,6 +93,7 @@ export default {
           image: 'https://cdn.swh296.com/img/appoint/icon_maicai.png',
           text: '买菜',
           id: 2
+          // url:'/pages/appoint/green_order'
         },
         {
           image: 'https://cdn.swh296.com/img/appoint/icon_dqj.png',
@@ -112,7 +114,9 @@ export default {
       greensList: [
       ],
       green_value:'',
-      isroleId:true
+      green_value_text:'',
+      isroleId:true,
+      placeholder:placeholder
     };
   },
   mounted() {
@@ -140,6 +144,7 @@ export default {
           const data = response.data
           if (response.code === 1) {
             this.exampleList = data
+            this.placeholder =''
             this.isExampleModal = true
             uni.hideLoading()
           }
@@ -156,6 +161,11 @@ export default {
             if(data.data.length>0){
               _this.greens_id = _this.greensList[0].code
               _this.green_value = _this.greensList[0].value
+              _this.green_value_text = _this.greensList[0].value_text
+              _this.greensInfo = {
+                id:1,
+                list:_this.greensList[0].value_text
+              }
               _this.greensList.map(v=>{
                 v.value_text.map(s=>{
                   s.name = s.name + ' '
@@ -175,12 +185,19 @@ export default {
        // 备注类型:1=洗衣,2=代购,3=快递,4=代取件,5=寄存
       let optData ={
         type:this.navid,
-        value:this.textareaData,
-        green_value:this.green_value
+        value:this.textareaData
+        // green_value:this.green_value
       }
-      uni.navigateTo({
-        url:`/pages/appoint/create_order?optData=${JSON.stringify(optData)}`
-      })
+      if(this.navid==2){
+        uni.setStorageSync('mealList',this.greensInfo)
+        uni.navigateTo({
+          url:`/pages/appoint/green_order?optData=${JSON.stringify(optData)}`
+        })
+      }else{
+        uni.navigateTo({
+          url:`/pages/appoint/create_order?optData=${JSON.stringify(optData)}`
+        })
+      }
     },
     _more(item) {
       this.isgreensMore = true;
@@ -189,13 +206,15 @@ export default {
       this.greens_id = item.code
       console.log(item.value)
       this.green_value = item.value
+      this.green_value_text = item.value_text
       this.greensInfo = {
         id:index + 1,
         list:item.value_text
       }
     },
     _changeNav(item) {
-      if(item.url && item.id !=1){
+      // && item.id !=1
+      if(item.url){
         // this.navid = item.id
         let optData = {
           type:item.id,
@@ -211,6 +230,15 @@ export default {
     _copy(item) {
       this.textareaData = item.value
       this.isExampleModal = false;
+    }
+  },
+  watch:{
+    isExampleModal(val,bef){
+      if(!val){
+        this.placeholder = placeholder
+      }else{
+        this.placeholder =''
+      }
     }
   }
 };

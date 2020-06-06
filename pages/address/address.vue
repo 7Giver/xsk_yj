@@ -44,6 +44,7 @@
       this.getAddress()
     },
 		onLoad(option){
+      console.log(option)
 			this.source = option.source;
       // this.getAddress()
 		},
@@ -54,7 +55,20 @@
 					//this.$api.prePage()获取上一页实例，在App.vue定义
 					this.$api.prePage().addressData = item;
 					uni.navigateBack()
+          return
 				}
+        if(this.source == 'appoint_pick'){
+          console.log('item',item)
+          this.$api.prePage().pickAddress = item.street + '\n' + item.contactor_name + item.phone
+          uni.navigateBack()
+           return
+        }
+        if(this.source == 'appoint_receive'){
+          console.log('item',item)
+          this.$api.prePage().receiveAddress = item.street + '\n' + item.contactor_name + item.phone
+          uni.navigateBack()
+           return
+        }
 			},
 			addAddress(type, item){
 				uni.navigateTo({

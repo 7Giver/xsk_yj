@@ -48,7 +48,7 @@
     </view>
     <view class="service-section">
       <scroll-view scroll-x class="scroll-service">
-        <view class="service-item" v-for="(item, index) in serviceList" @click="_gType(item)" :key="index"><image :src="item.thumb_image_text" mode=""></image></view>
+        <view class="service-item" v-for="(item, index) in serviceList" @click="_gType(item,index)" :key="index"><image :src="item.thumb_image_text" mode=""></image></view>
       </scroll-view>
     </view>
     <view class="nav-section">
@@ -189,14 +189,24 @@ export default {
         const data = response.data;
         if (response.code === 1) {
           console.log('data', data);
-          this.serviceList = data;
+          data.unshift({
+            id:0,
+            thumb_image_text:"/static/appoint_img.png"
+          });
+          this.serviceList = data
         }
       });
     },
-    _gType(item) {
-      uni.navigateTo({
-        url: `/pages/category/category_product?id=${item.id}`
-      });
+    _gType(item,index) {
+      if(index ==0){
+        uni.navigateTo({
+          url: `/pages/appoint/home`
+        })
+      }else{
+       uni.navigateTo({
+         url: `/pages/category/category_product?id=${item.id}`
+       }) 
+      }
     },
     search() {
       uni.navigateTo({

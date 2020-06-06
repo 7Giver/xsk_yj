@@ -2,29 +2,11 @@
   <view class="container">
     <view class="address-section">
       <image class="line" src="/static/line.png" mode=""></image>
-      <view class="pick">
-        <view class="article pic_bg">
-          取
-        </view>
-        <view class="content">
-          <view class="textarea">
-            <textarea value="" v-model.trim="pickAddress" placeholder="请输入取件地址" />
-          </view>
-        </view>
-        <view class="right-arrow"  @click.stop="openAddres('appoint_pick')">
-          <text class="yticon icon-you"></text>
-        </view>
-        <view class="right-location"  @click.stop="_authPickLocaiton" >
-          <image class="icon_location" src="../../static/icon_location.png" mode=""></image>
-        </view>
-      </view>
       <view class="receiver">
-        <view class="article re_bg">
-          收
-        </view>
+        <view class="ser-l">收货地址</view>
         <view class="content">
          <view class="textarea">
-            <textarea value="" v-model.trim="receiveAddress" placeholder="请输入收件地址" />
+            <textarea value="" v-model.trim="receiveAddress" placeholder="请输入收货地址" />
           </view>
         </view>
         <view class="right-arrow"  @click.stop="openAddres('appoint_receive')">
@@ -32,6 +14,34 @@
         </view>
         <view class="right-location"  @click.stop="_authReceiveLocaiton" >
           <image class="icon_location" src="../../static/icon_location.png" mode=""></image>
+        </view>
+      </view>
+    </view>
+    <view class="tb-list">
+      <view class="service-item "><text class="ser-l">服务详情</text></view>
+      <view class="green_detail">
+        <view class="meal clamp_two">
+          <text style="margin-right: 4px;">套餐{{greensInfo.id }}:</text>
+          <text v-for="(item,index) in greensInfo.list" :key="index"> {{ item.name}}</text>
+        </view>
+        <view class="price">
+          <view class="item-r">
+            <view class="day">
+              <text class="price">50元</text>
+            </view>
+              <!-- :isMax="sitem.quantity >= sitem.sku.stock ? true : false" -->
+              <!-- :max="sitem.sku.stock" -->
+              <view>
+                <uni-number-box
+                  class="step"
+                  :min="1"
+                  :productId='productId'
+                  :value="meal_quality"
+                  :isMin="meal_quality == 1"
+                  @eventChange="numberChange"
+                ></uni-number-box>
+              </view>
+          </view>
         </view>
       </view>
     </view>
@@ -59,29 +69,12 @@
         <text class="yticon icon-you"></text>
       </view>
     </view>
-    <!-- 快递显示 -->
-    <view v-if="optData.type==3">
-      <view class="service-item time" @click="_chooseDelivery">
-        <text class="ser-l">选择快递</text>
-        <view class="ser-r"><text style="color:#F64443">{{expressage_data.name}}</text><text class="yticon icon-you"></text></view>
-      </view>
-      <view class="text-section">
-        <view class="service-item">
-          <text class="ser-l">取件码</text>
-          <view class="input-inner"><textarea value="" v-model.trim="receiveCode" placeholder="如有多个快递，取件码请用“、”隔开, 注*邮寄快递无需填写取件码" /></view>
-        </view>
-      </view>
-      <view class="tb-list">
-        <view class="service-item "><text class="ser-l">服务信息</text></view>
-        <view class="input-inner"><textarea value="" v-model="user_remark" placeholder="如有多个快递，取件码请用“、”隔开, 注*邮寄快递无需填写取件码" /></view>
-      </view>
-    </view>
-    <view class="tb-list" v-else>
-      <view class="service-item "><text class="ser-l">物品</text></view>
+    <view class="tb-list">
+      <view class="service-item "><text class="ser-l">备注</text></view>
       <view class="input-inner"><textarea value="" v-model="user_remark" placeholder="请输入代取件的物品" /></view>
     </view>
     <view class="price-section">
-      <view class="service-item" v-if="optData.type==2">
+      <view class="service-item">
         <text class="ser-l">商品总价</text>
         <view class="ser-r"><text class="price-text">￥50</text></view>
       </view>
@@ -119,8 +112,14 @@
 // import simpleAddress from '@/components/simple-address/simple-address.vue'
 import hTimeAlert from '@/components/h-time-alert/h-time-alert.vue';
 import {chooseLocation,requestPayment} from '../../common/js/commonInfo.js'
+import uniNumberBox from '@/components/uni-number-box.vue';
+const timePrice = 50
 export default {
-  components: { hTimeAlert },
+  components: { 
+    hTimeAlert,
+    // simpleAddress,
+    uniNumberBox
+  },
   data() {
     return {
       optData:{},
@@ -131,7 +130,6 @@ export default {
       rangeType: true,
       sendTime: '',
       sendTime1: '',
-      // order_price:5,
       disabled:false,
       cityPickerValueDefault: [0, 0, 1],
       pickTude:{
@@ -141,63 +139,41 @@ export default {
       pickAddress:'',
       receiveAddress:'',
       user_remark:'',
-      goods_msg:'', //物品
       canuse_times:'',
-      expressage_data:{ //快递相关
-       name:''
-      },
       receiveCode:'', //取件码
       couponDiscount:{
         canuse_times:''
-      }
+      },
+      meal_quality:1,
+      productId:0,
+      greensInfo:{},
+      time_price:timePrice,
+      order_price:''
     }
   },
   computed:{
     iscandiscount(){
       return this.couponDiscount.canuse_times > 0 || this.couponDiscount.member ? true:false
     },
-    order_price(){
-      if(this.optData.type == 2){
-        return this.iscandiscount ? 0 : 50
-      }else{
-        return this.iscandiscount ? 0 : 5
-      }
-    }
+    // order_price(){
+    //   return this.iscandiscount ? 50 : 55
+    // }
   },
   onLoad(options){
     this.optData =JSON.parse(options.optData)
     this.user_remark = this.optData.value || ''
+    this.greensInfo = uni.getStorageSync('mealList')
+    console.log(this.greensInfo)
     this.canDiscount()
-    console.log(this.optData)
   },
   methods: {
-    getExpressage(data){
-      this.expressage_data = data[0]
-    },
-    _authPickLocaiton(e){
-      var _this = this
-      // #ifdef MP-WEIXIN
-      chooseLocation(function(res){
-        console.log('res',res)
-        _this.pickAddress = res.name
-        _this.pickTude ={
-          longitude:res.longitude,
-          latitude:res.latitude
-        }
-        })
-      // #endif
-      // #ifdef H5
-        _this.$jwx.getlocation(function(response){
-          console.log('response',response)
-          // #ifdef H5
-          uni.chooseLocation({
-              success: function (res) {
-               _this.pickAddress = res.name
-              }
-          })
-          // #endif
-        })
-      // #endif
+    numberChange(data) {
+      this.quantity = data.number || 1
+      if(this.iscandiscount){
+        this.order_price = this.time_price =  data.number * 50
+      }else{
+        this.order_price = this.time_price =  data.number * 50 + 5
+      }
     },
     _authReceiveLocaiton(e){
       var _this = this
@@ -221,11 +197,11 @@ export default {
       // #endif
     },
     openAddres(data) {
-    	// this.cityPickerValueDefault = [0,0,0]
-    	// this.$refs.simpleAddress.open();
       uni.navigateTo({
         url:`/pages/address/address?source=${data}`
       })
+    	// this.cityPickerValueDefault = [0,0,0]
+    	// this.$refs.simpleAddress.open();
     },
     onConfirm(e) {
       let labelArr =  e.labelArr
@@ -237,23 +213,13 @@ export default {
       })
     },
     submit(){
-      if(this.pickAddress == ''){
-        this.$api.msg('请输入取件地址~')
-        return
-      }
       if(this.receiveAddress == ''){
-        this.$api.msg('请输入收件地址~')
+        this.$api.msg('请输入收货地址~')
         return
       }
       if(!this.sendTime){
         this.$api.msg('请选择服务时间~')
         return
-      }
-      if(this.optData.type==3){
-        if(!this.receiveCode && !this.expressage_data.name){
-          this.$api.msg('请选择快递或者填写取件码~')
-          return
-        }
       }
       this.addOrder()
     },
@@ -274,21 +240,6 @@ export default {
       //  _dateRange: "2020-3-30 09:00-09:30"
       //  timeStamp: 1585530000000
       // }
-    },
-    // 用户备注
-    getUserRemark(){
-      var _this = this
-      this.$http
-        .post(`/addons/microlife/remark/user`,{
-          type:this.optData.type
-        })
-        .then(response => {
-          const data = response.data
-          console.log('getUserRemark',data)
-          if (response.code === 1) {
-            this.userRemark = data
-          }
-        });
     },
    orderPay(order){
      this.disabled = true
@@ -351,6 +302,11 @@ export default {
           const data = response.data
           if (response.code === 1) {
             this.couponDiscount = data
+            if(data.canuse_times > 0 || this.couponDiscount.member){
+               this.order_price =   50 
+            }else{
+              this.order_price =   55
+            }
           }
         })
     },
@@ -359,20 +315,13 @@ export default {
       this.disabled = true
       // type:备注类型:1=洗衣,3=快递,4=代取件
       let service_details = ''
-      if(this.optData.type == 3){ 
-        service_details =JSON.stringify([{
-          express:this.expressage_data.name,
-          receive_code:this.receiveCode
-        }])
-      }
-      if(this.optData.type == 2){
-        service_details =JSON.stringify([{
-          value:this.optData.green_value
-        }])
-      }
+      // service_details =JSON.stringify([{
+      //   value:this.optData.green_value
+      // }])
       this.$http
         .post(`/addons/microlife/order/add`,{
           type:this.optData.type,
+          quantity:this.quantity,
           user_remark:this.user_remark,
           pull_lng:this.pickTude.longitude,
           pull_lat:this.pickTude.latitude,
@@ -403,6 +352,25 @@ export default {
 
 <style lang="scss" scoped>
 @import 'mixin.scss';
+  /deep/.uni-numbox-minus,/deep/.uni-numbox-plus{
+    width: 32rpx;
+    height: 32rpx;
+    border: none !important;
+    background-color: #ECCA9D;
+    border-radius: 50%;
+    @include flexY;
+    @include flexJ;
+    .yticon{
+      color: #fff;
+      font-size: 20rpx;
+    }
+  }
+  /deep/.uni-numbox{
+    width: auto;
+    // margin-left: 25rpx;
+    position: relative;
+    border: none;
+  }
 page,
 .container {
   background-color: #f7f9fb;
@@ -414,7 +382,7 @@ page,
   color: #B5B7C7;
 }
 .address-section{
-  padding: 0 30rpx 0rpx;
+  padding: 0 30rpx 30rpx;
   border-radius: 6rpx;
   background-color: #fff;
   margin-bottom: 20rpx;
@@ -422,27 +390,16 @@ page,
     width: 690rpx;
     height: 8rpx;
   }
-  .receiver,.pick{
+  .receiver{
     padding-top: 20rpx;
     display: flex;
     // @include flexX;
     // @include flexA;
     font-size: 32rpx;
     color: #131A31;
-    .article{
-      width:44rpx;
-      height:44rpx;
-      line-height: 44rpx;
-      border-radius:50%;
-      font-size:26rpx;
-      text-align: center;
-      color: #fff;
-      &.re_bg{
-        background:rgba(246,79,87,1);
-      }
-      &.pic_bg{
-        background:#1795FF;
-      }
+    .ser-l {
+      width: 22%;
+      font-weight: bold;
     }
   }
   .content{
@@ -455,6 +412,7 @@ page,
         font-size: 26rpx;
         height: 110rpx;
         // padding: 20rpx 0;
+        padding-top: 5rpx;
       }
     }
   }
@@ -492,12 +450,37 @@ page,
   .input-inner{
     padding: 0 30rpx;
   }
+  .green_detail{
+    position: relative;
+    padding: 35rpx 0 35rpx 30rpx;
+    @include flexX;
+    .meal{
+      color: #757E90;
+      flex: 1;
+    }
+    .item-r{
+      width: 200rpx;
+      @include flexY;
+      @include flexJ;
+      @include flexA;
+      justify-content:right;
+      border-left: 1px solid #e6e6e6;
+      .day{
+        color: #757E90;
+        font-size: 28rpx;
+        .price{
+          font-size: 34rpx;
+          color: #F75347;
+        }
+      }
+    }
+  }
 }
 .input-inner {
     flex: 1;
     textarea {
       width: 90%;
-      font-size: 24rpx;
+      font-size: 26rpx;
       height: 110rpx;
       padding: 20rpx 0;
     }
