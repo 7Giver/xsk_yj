@@ -29,7 +29,8 @@ http.interceptors.request.use(async (config, ...args) => {
     let token = store.state.token || uni.getStorageSync('state_token')
     // config.header.Authorization = 'token' + token // 修改请求头
     config.header= { // 修改请求头
-      'token':token
+      'token':token,
+      'content-type':'application/x-www-form-urlencoded'
     } 
     return config
 })  
