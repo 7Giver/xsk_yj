@@ -64,7 +64,7 @@
         </view>
       </view>
     </view>
-    <view class="aggrement-section" v-if="way_id==3">
+    <view class="aggrement-section" v-if="way_id==2">
       <checkbox-group class="block" @change="checkboxChange">
         <checkbox class="round red" style="transform:scale(0.6)" :class="checkbox.checked ? 'checked' : ''" :checked="checkbox.checked ? true : false" value="isRead"></checkbox>
       </checkbox-group>
@@ -170,6 +170,7 @@ export default {
      // #endif
    },
     checkboxChange(e) {
+		console.log(e)
       var items = this.checkbox,
         values = e.detail.value;
         items.checked = !items.checked
@@ -190,14 +191,14 @@ export default {
       this.receiveAddress = labelArr.join('');
     },
     submit() {
-      if(this.way_id == 2){
-        this.$api.msg('暂不支持送货上门~')
-        return
-      }
-      // if(!this.isChecked && this.way_id == 2){
-      //   this.$api.msg('请阅读并同意用户协议')
+      // if(this.way_id == 2){
+      //   this.$api.msg('暂不支持送货上门~')
       //   return
       // }
+      if(!this.isChecked && this.way_id == 2){
+        this.$api.msg('请阅读并同意用户协议')
+        return
+      }
       if(this.pickAddress == ''){
         this.$api.msg('请输入送达地址~')
         return
@@ -269,12 +270,16 @@ page,
   color: #b5b7c7;
 }
 .aggrement-section{
-  margin-top: 15rpx;
+	position: fixed;
+	left: 0;
+	bottom: 110rpx;
+	width: 100%;
+  margin: 15rpx auto;
   @include flexX;
   @include flexA;
   color: #999;
   font-size: 26rpx;
-  justify-content: flex-end;
+  justify-content: center;
 }
 .address-section {
   padding: 0 30rpx 0rpx;
